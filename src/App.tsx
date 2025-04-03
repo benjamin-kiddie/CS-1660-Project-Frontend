@@ -1,17 +1,16 @@
-import { useState } from "react";
 import { ThemeProvider } from "@emotion/react";
 import { createTheme } from "@mui/material";
 import {
+  Navigate,
+  Route,
   BrowserRouter as Router,
   Routes,
-  Route,
-  Navigate,
 } from "react-router-dom";
-import Login from "./Login/Login";
+import Home from "./components/Home/Home";
+import Login from "./components/Login/Login";
+import { UserProvider } from "./components/UserProvider";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
   const theme = createTheme({
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -28,21 +27,15 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/home"
-            element={
-              isAuthenticated ? <div>Home Page</div> : <Navigate to="/login" />
-            }
-          />
-          <Route
-            path="*"
-            element={<Navigate to={isAuthenticated ? "/home" : "/login"} />}
-          />
-        </Routes>
-      </Router>
+      <UserProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="*" element={<Navigate to={"/login"} />} />
+          </Routes>
+        </Router>
+      </UserProvider>
     </ThemeProvider>
   );
 }
