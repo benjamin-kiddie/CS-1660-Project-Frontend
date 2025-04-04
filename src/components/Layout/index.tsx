@@ -25,20 +25,19 @@ type LayoutProps = {
  */
 function Layout({ children }: LayoutProps) {
   const { user } = useUser();
-
   const [search, setSearch] = useState<string>("");
   const [textFieldWidth, setTextFieldWidth] = useState<number>(0);
-
-  // Create a ref for the TextField
   const textFieldRef = useRef<HTMLInputElement>(null);
 
-  // Update the width of the TextField when the component mounts or resizes
+  /**
+   * Manually push the searchbar into the center of the app bar.
+   * Update the requisite margin whenever the window resizes.
+   */
   useEffect(() => {
     if (textFieldRef.current) {
       setTextFieldWidth(textFieldRef.current.offsetWidth);
     }
 
-    // Optionally, add an event listener for resizing the window if needed
     const handleResize = () => {
       if (textFieldRef.current) {
         setTextFieldWidth(textFieldRef.current.offsetWidth);
@@ -49,7 +48,7 @@ function Layout({ children }: LayoutProps) {
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [search]);
+  }, []);
 
   return (
     <Container maxWidth={false} disableGutters>
@@ -61,9 +60,7 @@ function Layout({ children }: LayoutProps) {
         >
           <Box
             sx={{
-              display: "flex",
-              alignItems: "center",
-              paddingRight: "10px",
+              ...styles.leftContainer,
               marginRight:
                 textFieldWidth > 0
                   ? `max(0px, calc(50% - 226px - (0.5 * ${textFieldWidth}px)))`

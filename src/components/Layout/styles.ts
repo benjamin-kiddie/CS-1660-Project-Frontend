@@ -1,17 +1,22 @@
 const styles = {
-  logo: {
-    height: "30px",
-    width: "30px",
-    marginRight: "5px",
-  },
   appBar: {
     width: "100%",
+  },
+  leftContainer: {
+    display: "flex",
+    alignItems: "center",
+    paddingRight: "10px",
   },
   logoAndTitle: {
     display: "flex",
     alignItems: "center",
     textDecoration: "none",
     color: "inherit",
+  },
+  logo: {
+    height: "30px",
+    width: "30px",
+    marginRight: "5px",
   },
   searchBarContainer: {
     flexGrow: 1,
@@ -25,6 +30,18 @@ const styles = {
   searchBar: {
     borderRadius: "20px",
     width: "100%",
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: "rgba(0, 0, 0, 0.23)",
+      },
+      "&:hover fieldset": {
+        borderColor: "rgba(0, 0, 0, 0.5)",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "rgba(0, 0, 0, 0.7)",
+        borderWidth: "1px",
+      },
+    },
   },
   avatarContainer: {
     marginLeft: "auto",
