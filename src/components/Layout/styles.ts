@@ -49,6 +49,12 @@ const styles = {
     display: "flex",
     alignItems: "center",
   },
+  logoutMenu: {
+    mt: 1.5,
+    minWidth: 180,
+    overflow: "visible",
+    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+  },
 };
 
 export default styles;

@@ -1,5 +1,8 @@
-import { Search as SearchIcon } from "@mui/icons-material";
-import MenuIcon from "@mui/icons-material/Menu";
+import {
+  Search as SearchIcon,
+  Logout as LogoutIcon,
+  Menu as MenuIcon,
+} from "@mui/icons-material";
 import {
   AppBar,
   Avatar,
@@ -7,27 +10,66 @@ import {
   Container,
   IconButton,
   InputAdornment,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   TextField,
   Toolbar,
   Typography,
 } from "@mui/material";
-import { ReactNode, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { signOut } from "firebase/auth";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./styles";
 import { useUser } from "../../hooks/useUser";
+import { auth } from "../../utils/firebase";
 
 type LayoutProps = {
   children?: { children: ReactNode };
 };
+
+// TODO: Implement search
 
 /**
  * Layout for main pages, including Home, Profile, and Video.
  */
 function Layout({ children }: LayoutProps) {
   const { user } = useUser();
+  const navigate = useNavigate();
   const [search, setSearch] = useState<string>("");
   const [textFieldWidth, setTextFieldWidth] = useState<number>(0);
   const textFieldRef = useRef<HTMLInputElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const open = Boolean(anchorEl);
+
+  /**
+   * Open the logout menu.
+   * @param {React.MouseEvent<HTMLElement>} event user click event.
+   */
+  function handleLogoutMenuOpen(event: React.MouseEvent<HTMLElement>) {
+    setAnchorEl(event.currentTarget);
+  }
+
+  /**
+   * Close the logout menu.
+   */
+  function handleLogoutMenuClose() {
+    setAnchorEl(null);
+  }
+
+  /**
+   * Handle a user logging out.
+   */
+  function handleLogout() {
+    signOut(auth)
+      .then(() => {
+        navigate("/login");
+      })
+      .catch((error) => {
+        console.error("Error signing out: ", error);
+      });
+  }
 
   /**
    * Manually push the searchbar into the center of the app bar.
@@ -103,13 +145,43 @@ function Layout({ children }: LayoutProps) {
             />
           </Box>
           {user && (
-            <Box sx={styles.avatarContainer}>
-              <Avatar
-                alt={user.displayName || "User"}
-                src={user.photoURL || "/default-avatar.png"}
-                sx={{ width: 40, height: 40 }}
-              />
-            </Box>
+            <>
+              <IconButton
+                onClick={handleLogoutMenuOpen}
+                size="small"
+                aria-controls={open ? "avatar-menu" : undefined}
+                aria-haspopup="true"
+                aria-expanded={open ? "true" : undefined}
+                sx={styles.avatarContainer}
+              >
+                <Avatar
+                  alt={user.displayName || "User"}
+                  src={user.photoURL || "/default-avatar.png"}
+                />
+              </IconButton>
+              <Menu
+                id="avatar-menu"
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleLogoutMenuClose}
+                onClick={handleLogoutMenuClose}
+                slotProps={{
+                  paper: {
+                    elevation: 3,
+                    sx: styles.logoutMenu,
+                  },
+                }}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+              >
+                <MenuItem onClick={handleLogout}>
+                  <ListItemIcon>
+                    <LogoutIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" />
+                </MenuItem>
+              </Menu>
+            </>
           )}
         </Toolbar>
         {children && children.children}
