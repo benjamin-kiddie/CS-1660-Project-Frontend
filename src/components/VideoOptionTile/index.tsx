@@ -6,6 +6,8 @@ type VideoOptionTileProps = {
   video: VideoOption;
 };
 
+// TODO: Link to videos on title and thumbnail
+
 /**
  * Video option on home page and video sidebar.
  * Shows a video thumbnail, title, author, views, and time since upload.
