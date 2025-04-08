@@ -9,7 +9,7 @@ export function uploadVideo(
   const formData = new FormData();
   formData.append("title", title);
   formData.append("description", description);
-  formData.append("uploaderUsername", "yourUsername");
+  formData.append("uploaderUsername", uploader);
   if (videoFile) formData.append("videoFile", videoFile);
   if (thumbnailFile) formData.append("thumbnailFile", thumbnailFile);
 
