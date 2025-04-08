@@ -42,7 +42,7 @@ const styles = {
         borderColor: "rgba(0, 0, 0, 0.5)",
       },
       "&.Mui-focused fieldset": {
-        borderColor: "rgba(0, 0, 0, 0.7)",
+        borderColor: "rgba(0, 0, 0, 0.5)",
         borderWidth: "1px",
       },
     },
