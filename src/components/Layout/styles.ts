@@ -59,6 +59,11 @@ const styles = {
     overflow: "visible",
     filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
   },
+  mainContent: {
+    width: "100%",
+    paddingTop: "24px",
+    margin: 0,
+  },
 };
 
 export default styles;

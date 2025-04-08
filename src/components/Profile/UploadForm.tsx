@@ -21,6 +21,7 @@ import { useUser } from "../../hooks/useUser";
 import { uploadVideo } from "../../utils/api";
 
 function UploadForm() {
+  const { user } = useUser();
   const [dialogOpen, setDialogOpen] = useState<boolean>(true);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -29,8 +30,6 @@ function UploadForm() {
   const [thumbnailError, setThumbnailError] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
-
-  const { user } = useUser();
 
   /**
    * Handle attaching a video file.
@@ -116,8 +115,6 @@ function UploadForm() {
     const token = await user?.getIdToken();
     uploadVideo(title, description, videoFile, thumbnailFile, user?.uid, token);
   }
-
-  function handleClose() {}
 
   return (
     <Dialog
@@ -258,9 +255,7 @@ function UploadForm() {
           )}
         </Box>
         <DialogActions>
-          <Button variant="outlined" onClick={handleClose}>
-            Cancel
-          </Button>
+          <Button variant="outlined">Cancel</Button>
           <Button
             type="submit"
             variant="contained"

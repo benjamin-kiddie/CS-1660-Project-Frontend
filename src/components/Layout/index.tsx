@@ -181,7 +181,9 @@ function Layout({ children }: LayoutProps) {
           )}
         </Toolbar>
       </AppBar>
-      <Box color="secondary">{children && children}</Box>
+      <Container color="secondary" sx={styles.mainContent}>
+        {children && children}
+      </Container>
     </Container>
   );
 }
