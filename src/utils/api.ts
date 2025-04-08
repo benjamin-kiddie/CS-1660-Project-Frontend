@@ -13,7 +13,8 @@ export function uploadVideo(
   if (videoFile) formData.append("videoFile", videoFile);
   if (thumbnailFile) formData.append("thumbnailFile", thumbnailFile);
 
-  fetch("http://localhost:3000/video/video", {
+  const apiUrl = process.env.API_URL;
+  fetch(`${apiUrl}/video`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
