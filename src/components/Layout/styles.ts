@@ -1,6 +1,10 @@
 const styles = {
   appBar: {
     width: "100%",
+    backgroundColor: "#FFFFFF",
+  },
+  toolbar: {
+    alignItems: "center",
   },
   leftContainer: {
     display: "flex",

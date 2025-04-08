@@ -1,19 +1,19 @@
 export function uploadVideo(
   title: string,
   description: string,
-  uploader: string,
   videoFile: File | null,
   thumbnailFile: File | null,
+  uploader?: string,
   token?: string
 ) {
   const formData = new FormData();
   formData.append("title", title);
   formData.append("description", description);
-  formData.append("uploaderUsername", uploader);
+  if (uploader) formData.append("uploader", uploader);
   if (videoFile) formData.append("videoFile", videoFile);
   if (thumbnailFile) formData.append("thumbnailFile", thumbnailFile);
 
-  const apiUrl = process.env.API_URL;
+  const apiUrl = import.meta.env.VITE_API_URL;
   fetch(`${apiUrl}/video`, {
     method: "POST",
     headers: {

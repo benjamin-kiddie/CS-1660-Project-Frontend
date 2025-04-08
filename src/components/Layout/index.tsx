@@ -94,12 +94,8 @@ function Layout({ children }: LayoutProps) {
 
   return (
     <Container maxWidth={false} disableGutters>
-      <AppBar position="sticky" sx={styles.appBar}>
-        <Toolbar
-          sx={{
-            alignItems: "center",
-          }}
-        >
+      <AppBar position="sticky" sx={styles.appBar} color="default">
+        <Toolbar sx={styles.toolbar}>
           <Box
             sx={{
               ...styles.leftContainer,
@@ -185,7 +181,7 @@ function Layout({ children }: LayoutProps) {
           )}
         </Toolbar>
       </AppBar>
-      {children && children}
+      <Box color="secondary">{children && children}</Box>
     </Container>
   );
 }

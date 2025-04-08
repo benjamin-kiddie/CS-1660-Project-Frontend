@@ -26,6 +26,7 @@ function UploadForm() {
   const [description, setDescription] = useState<string>("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailError, setThumbnailError] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
 
@@ -52,6 +53,28 @@ function UploadForm() {
    */
   function handleThumbnailChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] || null;
+
+    // check aspect ratio
+    if (file) {
+      const img = new Image();
+      img.onload = () => {
+        if (img.width < 640) {
+          setThumbnailError("Thumbnail must be at least 640px wide.");
+          setThumbnailFile(null);
+          setThumbnailPreview(null);
+          return;
+        }
+        setThumbnailError(null);
+        setThumbnailFile(file);
+        const previewUrl = URL.createObjectURL(file);
+        setThumbnailPreview(previewUrl);
+      };
+    } else {
+      setThumbnailError(null);
+      setThumbnailFile(null);
+      setThumbnailPreview(null);
+    }
+
     setThumbnailFile(file);
     if (file) {
       const previewUrl = URL.createObjectURL(file);
@@ -76,6 +99,7 @@ function UploadForm() {
    * Handle clearing the thumbnail file.
    */
   function clearThumbnailFile() {
+    setThumbnailError(null);
     setThumbnailFile(null);
     if (thumbnailPreview) {
       URL.revokeObjectURL(thumbnailPreview);
@@ -90,15 +114,10 @@ function UploadForm() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const token = await user?.getIdToken();
-    uploadVideo(
-      title,
-      description,
-      user?.displayName || "",
-      videoFile,
-      thumbnailFile,
-      token
-    );
+    uploadVideo(title, description, videoFile, thumbnailFile, user?.uid, token);
   }
+
+  function handleClose() {}
 
   return (
     <Dialog
@@ -111,7 +130,7 @@ function UploadForm() {
         },
       }}
     >
-      <DialogTitle>Upload Content</DialogTitle>
+      <DialogTitle>Upload Video</DialogTitle>
       <DialogContent>
         <TextField
           variant="outlined"
@@ -125,7 +144,6 @@ function UploadForm() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
-
         <TextField
           margin="normal"
           fullWidth
@@ -191,6 +209,11 @@ function UploadForm() {
             <ImageIcon sx={{ mr: 1, verticalAlign: "middle" }} />
             Thumbnail Upload
           </Typography>
+          {thumbnailError && (
+            <Typography color="error" variant="body2">
+              {thumbnailError}
+            </Typography>
+          )}
           {thumbnailFile ? (
             <Stack
               direction="row"
@@ -235,6 +258,9 @@ function UploadForm() {
           )}
         </Box>
         <DialogActions>
+          <Button variant="outlined" onClick={handleClose}>
+            Cancel
+          </Button>
           <Button
             type="submit"
             variant="contained"
