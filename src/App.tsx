@@ -6,6 +6,7 @@ import {
   BrowserRouter as Router,
   Routes,
 } from "react-router-dom";
+import Home from "./components/Home";
 import Layout from "./components/Layout";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
@@ -18,7 +19,7 @@ function App() {
     },
     palette: {
       primary: {
-        main: "#FFFFFF",
+        main: "#78C5DC",
       },
       secondary: {
         main: "#F5F5F5",
@@ -32,7 +33,14 @@ function App() {
         <Router>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/home" element={<Layout />} />
+            <Route
+              path="/home"
+              element={
+                <Layout>
+                  <Home />
+                </Layout>
+              }
+            />
             <Route
               path="/profile"
               element={
