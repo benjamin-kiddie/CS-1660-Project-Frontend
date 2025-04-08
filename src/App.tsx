@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import Layout from "./components/Layout";
 import Login from "./components/Login";
+import Profile from "./components/Profile";
 import { UserProvider } from "./components/UserProvider";
 
 function App() {
@@ -32,6 +33,14 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/home" element={<Layout />} />
+            <Route
+              path="/profile"
+              element={
+                <Layout>
+                  <Profile />
+                </Layout>
+              }
+            />
             <Route path="*" element={<Navigate to={"/login"} />} />
           </Routes>
         </Router>

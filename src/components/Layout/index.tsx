@@ -26,7 +26,7 @@ import { useUser } from "../../hooks/useUser";
 import { auth } from "../../utils/firebase";
 
 type LayoutProps = {
-  children?: { children: ReactNode };
+  children?: ReactNode;
 };
 
 // TODO: Implement search
@@ -184,8 +184,8 @@ function Layout({ children }: LayoutProps) {
             </>
           )}
         </Toolbar>
-        {children && children.children}
       </AppBar>
+      {children && children}
     </Container>
   );
 }
