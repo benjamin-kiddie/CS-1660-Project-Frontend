@@ -5,6 +5,7 @@ const styles = {
     gap: "15px",
     padding: "0 0 10px",
   },
+  thumbnailLink: { textDecoration: "none" },
   thumbnailContainer: {
     flexShrink: 0,
     width: "160px",
@@ -23,6 +24,7 @@ const styles = {
     flexDirection: "column",
     justifyContent: "center",
   },
+  titleLink: { textDecoration: "none", color: "inherit" },
   title: {
     display: "-webkit-box",
     WebkitBoxOrient: "vertical",

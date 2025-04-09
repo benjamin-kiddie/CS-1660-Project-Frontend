@@ -8,7 +8,7 @@ import {
 import { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { useParams } from "react-router-dom";
-import ReccomendedTile from "./ReccomendedTile/ReccomendedTile";
+import ReccomendedTile from "./ReccomendedTile";
 import styles from "./styles";
 import { useUser } from "../../hooks/useUser";
 import {
@@ -125,13 +125,7 @@ function Watch() {
                     )
                   : timeSinceUpload(videoDetails.uploadDate)}
               </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
+              <Box sx={styles.descriptionContainer}>
                 <Typography>
                   {descriptionisExpanded
                     ? videoDetails.description
@@ -143,11 +137,7 @@ function Watch() {
                   onClick={() =>
                     setDescriptionIsExpanded(!descriptionisExpanded)
                   }
-                  sx={{
-                    fontWeight: "bold",
-                    cursor: "pointer",
-                    marginLeft: "10px",
-                  }}
+                  sx={styles.expand}
                 >
                   {descriptionisExpanded ? "Collapse" : "Expand"}
                 </Typography>

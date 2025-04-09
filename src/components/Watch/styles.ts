@@ -44,6 +44,16 @@ const styles = {
     borderRadius: 3,
     padding: "10px",
   },
+  descriptionContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  expand: {
+    fontWeight: "bold",
+    cursor: "pointer",
+    marginLeft: "10px",
+  },
   reccomendedContainer: {
     height: "100%",
     minWidth: "308px",

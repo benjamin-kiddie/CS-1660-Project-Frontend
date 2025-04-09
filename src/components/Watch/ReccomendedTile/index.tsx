@@ -16,7 +16,7 @@ function ReccomendedTile({ video }: ReccomendedTileProps) {
   return (
     <Box sx={styles.tile}>
       <Box sx={styles.thumbnailContainer}>
-        <Link to={`/watch/${video.id}`} style={{ textDecoration: "none" }}>
+        <Link to={`/watch/${video.id}`} style={styles.thumbnailLink}>
           <Box
             component="img"
             src={video.thumbnailSignedLink}
@@ -26,10 +26,7 @@ function ReccomendedTile({ video }: ReccomendedTileProps) {
         </Link>
       </Box>
       <Box sx={styles.textContainer}>
-        <Link
-          to={`/watch/${video.id}`}
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
+        <Link to={`/watch/${video.id}`} style={styles.titleLink}>
           <Typography variant="body1" fontWeight={500} sx={styles.title}>
             {video.title}
           </Typography>

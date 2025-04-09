@@ -11,6 +11,7 @@ const styles = {
     alignItems: "center",
     paddingRight: "10px",
   },
+  drawerButton: { mr: 2 },
   logoAndTitle: {
     display: "flex",
     alignItems: "center",

@@ -16,7 +16,7 @@ function VideoOptionTile({ video }: VideoOptionTileProps) {
   return (
     <Box sx={styles.tile}>
       <Box sx={styles.thumbnailContainer}>
-        <Link to={`/watch/${video.id}`} style={{ textDecoration: "none" }}>
+        <Link to={`/watch/${video.id}`} style={styles.thumbnailLink}>
           <Box
             component="img"
             src={video.thumbnailSignedLink}
@@ -31,10 +31,7 @@ function VideoOptionTile({ video }: VideoOptionTileProps) {
           alt={`${video.uploaderDisplayName}'s profile picture`}
         />
         <Box sx={styles.textContainer}>
-          <Link
-            to={`/watch/${video.id}`}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
+          <Link to={`/watch/${video.id}`} style={styles.titleLink}>
             <Typography variant="body1" fontWeight={500} sx={styles.title}>
               {video.title}
             </Typography>
