@@ -10,7 +10,9 @@ import Home from "./components/Home";
 import Layout from "./components/Layout";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { UserProvider } from "./components/UserProvider";
+import Watch from "./components/Watch";
 
 function App() {
   const theme = createTheme({
@@ -29,30 +31,44 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <UserProvider>
-        <Router>
+      <Router>
+        <UserProvider>
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route
               path="/home"
               element={
-                <Layout>
-                  <Home />
-                </Layout>
+                <ProtectedRoute>
+                  <Layout>
+                    <Home />
+                  </Layout>
+                </ProtectedRoute>
               }
             />
             <Route
               path="/profile"
               element={
-                <Layout>
-                  <Profile />
-                </Layout>
+                <ProtectedRoute>
+                  <Layout>
+                    <Profile />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/watch/:videoId"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Watch />
+                  </Layout>
+                </ProtectedRoute>
               }
             />
             <Route path="*" element={<Navigate to={"/login"} />} />
           </Routes>
-        </Router>
-      </UserProvider>
+        </UserProvider>
+      </Router>
     </ThemeProvider>
   );
 }

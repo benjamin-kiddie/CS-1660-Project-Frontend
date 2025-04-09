@@ -1,4 +1,4 @@
-import { VideoOption } from "./types";
+import { VideoDetails, VideoOption } from "./types";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -63,5 +63,49 @@ export async function getVideoOptions(token?: string): Promise<VideoOption[]> {
   } catch (error) {
     console.error("Error fetching video options:", error);
     return [];
+  }
+}
+
+/**
+ * Fetch video details from the API.
+ * @param {string} videoId ID of the video.
+ * @param {string} token JWT for authorization.
+ * @returns
+ */
+export async function getVideoDetails(
+  videoId: string,
+  token?: string
+): Promise<VideoDetails | null> {
+  try {
+    const response = await fetch(`${apiUrl}/video/${videoId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error);
+    }
+    return data;
+  } catch (error) {
+    console.error("Error fetching video details:", error);
+    return null;
+  }
+}
+
+export async function incrementViewCount(videoId: string, token?: string) {
+  try {
+    const response = await fetch(`${apiUrl}/video/${videoId}/view`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to increment view count");
+    }
+  } catch (error) {
+    console.error("Error incrementing view count:", error);
   }
 }
