@@ -11,6 +11,7 @@ const styles = {
     alignItems: "center",
     paddingRight: "10px",
   },
+  drawerButton: { mr: 2 },
   logoAndTitle: {
     display: "flex",
     alignItems: "center",
@@ -42,7 +43,7 @@ const styles = {
         borderColor: "rgba(0, 0, 0, 0.5)",
       },
       "&.Mui-focused fieldset": {
-        borderColor: "rgba(0, 0, 0, 0.7)",
+        borderColor: "rgba(0, 0, 0, 0.5)",
         borderWidth: "1px",
       },
     },
@@ -60,7 +61,8 @@ const styles = {
     filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
   },
   mainContent: {
-    width: "100%",
+    display: "flex",
+    justifyContent: "center",
     paddingTop: "24px",
     margin: 0,
   },

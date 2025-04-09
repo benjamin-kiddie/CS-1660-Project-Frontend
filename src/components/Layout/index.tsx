@@ -20,8 +20,9 @@ import {
 } from "@mui/material";
 import { signOut } from "firebase/auth";
 import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styles from "./styles";
+import logo from "../../assets/videoplayer.svg";
 import { useUser } from "../../hooks/useUser";
 import { auth } from "../../utils/firebase";
 
@@ -35,8 +36,7 @@ type LayoutProps = {
  * Layout for main pages, including Home, Profile, and Video.
  */
 function Layout({ children }: LayoutProps) {
-  const { user } = useUser();
-  const navigate = useNavigate();
+  const { user, setUser } = useUser();
   const [search, setSearch] = useState<string>("");
   const [textFieldWidth, setTextFieldWidth] = useState<number>(0);
   const textFieldRef = useRef<HTMLInputElement>(null);
@@ -64,7 +64,7 @@ function Layout({ children }: LayoutProps) {
   function handleLogout() {
     signOut(auth)
       .then(() => {
-        navigate("/login");
+        setUser(null);
       })
       .catch((error) => {
         console.error("Error signing out: ", error);
@@ -110,13 +110,15 @@ function Layout({ children }: LayoutProps) {
               edge="start"
               color="inherit"
               aria-label="open drawer"
-              sx={{ mr: 2 }}
+              sx={styles.drawerButton}
             >
               <MenuIcon />
             </IconButton>
             <Link to="/home" style={styles.logoAndTitle}>
-              <img src="videoplayer.svg" style={styles.logo} />
-              <Typography variant="h5">ScuffTube</Typography>
+              <img src={logo} style={styles.logo} />
+              <Typography variant="h5" fontWeight={500}>
+                ScuffTube
+              </Typography>
             </Link>
           </Box>
           <Box sx={styles.searchBarContainer}>
@@ -181,7 +183,7 @@ function Layout({ children }: LayoutProps) {
           )}
         </Toolbar>
       </AppBar>
-      <Container color="secondary" sx={styles.mainContent}>
+      <Container maxWidth={false} sx={styles.mainContent}>
         {children && children}
       </Container>
     </Container>

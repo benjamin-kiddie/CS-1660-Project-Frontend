@@ -17,8 +17,9 @@ import {
   Typography,
 } from "@mui/material";
 import { useState } from "react";
-import { useUser } from "../../hooks/useUser";
-import { uploadVideo } from "../../utils/api";
+import styles from "./styles";
+import { useUser } from "../../../hooks/useUser";
+import { uploadVideo } from "../../../utils/api";
 
 function UploadForm() {
   const { user } = useUser();
@@ -152,9 +153,9 @@ function UploadForm() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <Box sx={{ mt: 3, p: 2, border: "1px dashed grey", borderRadius: 1 }}>
+        <Box sx={styles.uploadContainer}>
           <Typography variant="subtitle1" gutterBottom>
-            <VideocamIcon sx={{ mr: 1, verticalAlign: "middle" }} />
+            <VideocamIcon sx={styles.icon} />
             Video Upload
           </Typography>
           {videoFile ? (
@@ -162,15 +163,15 @@ function UploadForm() {
               direction="row"
               spacing={2}
               alignItems="center"
-              sx={{ mt: 2 }}
+              sx={styles.file}
             >
-              <Box sx={{ flexGrow: 1 }}>
+              <Box sx={styles.previewContainer}>
                 <Typography variant="body2" noWrap>
                   {videoFile.name} (
                   {(videoFile.size / (1024 * 1024)).toFixed(2)} MB)
                 </Typography>
                 {videoPreview && (
-                  <Box sx={{ mt: 1 }}>
+                  <Box sx={styles.preview}>
                     <video
                       controls
                       width="100%"
@@ -189,7 +190,7 @@ function UploadForm() {
               component="label"
               variant="outlined"
               startIcon={<CloudUploadIcon />}
-              sx={{ mt: 1 }}
+              sx={styles.uploadButton}
             >
               Select Video
               <input
@@ -201,9 +202,9 @@ function UploadForm() {
             </Button>
           )}
         </Box>
-        <Box sx={{ mt: 3, p: 2, border: "1px dashed grey", borderRadius: 1 }}>
+        <Box sx={styles.uploadContainer}>
           <Typography variant="subtitle1" gutterBottom>
-            <ImageIcon sx={{ mr: 1, verticalAlign: "middle" }} />
+            <ImageIcon sx={styles.icon} />
             Thumbnail Upload
           </Typography>
           {thumbnailError && (
@@ -216,15 +217,15 @@ function UploadForm() {
               direction="row"
               spacing={2}
               alignItems="center"
-              sx={{ mt: 2 }}
+              sx={styles.file}
             >
-              <Box sx={{ flexGrow: 1 }}>
+              <Box sx={styles.previewContainer}>
                 <Typography variant="body2" noWrap>
                   {thumbnailFile.name} (
                   {(thumbnailFile.size / (1024 * 1024)).toFixed(2)} MB)
                 </Typography>
                 {thumbnailPreview && (
-                  <Box sx={{ mt: 1 }}>
+                  <Box sx={styles.preview}>
                     <img
                       src={thumbnailPreview}
                       alt="Thumbnail preview"
@@ -242,7 +243,7 @@ function UploadForm() {
               component="label"
               variant="outlined"
               startIcon={<CloudUploadIcon />}
-              sx={{ mt: 1 }}
+              sx={styles.uploadButton}
             >
               Select Thumbnail
               <input

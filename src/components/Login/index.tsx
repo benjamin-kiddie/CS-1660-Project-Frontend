@@ -3,6 +3,7 @@ import { Box, Button, Typography } from "@mui/material";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import styles from "./styles";
+import logo from "../../assets/videoplayer.svg";
 import { useUser } from "../../hooks/useUser";
 import { auth } from "../../utils/firebase";
 
@@ -34,7 +35,7 @@ function Login() {
   return (
     <Box sx={styles.loginContainer}>
       <Box sx={styles.loginBox}>
-        <img src="videoplayer.svg" style={styles.logo} />
+        <img src={logo} style={styles.logo} />
         <Typography variant="h3" color="#1D1D1B" fontWeight={500}>
           Login to ScuffTube
         </Typography>

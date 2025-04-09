@@ -5,6 +5,13 @@ import { getVideoOptions } from "../../utils/api";
 import { VideoOption } from "../../utils/types";
 import VideoOptionTile from "../VideoOptionTile";
 
+const styles = {
+  grid: {
+    width: "90%",
+    height: "100%",
+  },
+};
+
 // TODO: Make order "random", paginate while scrolling
 // TODO: Make skeleton while loading?
 
@@ -19,7 +26,7 @@ function Home() {
   useEffect(() => {
     const fetchVideoOptions = async () => {
       if (!user) return;
-      const token = await user?.getIdToken();
+      const token = await user.getIdToken();
       const newVideoList = await getVideoOptions(token);
       if (newVideoList.length > 0) {
         setVideoList(newVideoList);
@@ -30,9 +37,9 @@ function Home() {
   }, [user]);
 
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={3} sx={styles.grid}>
       {videoList.map((video) => (
-        <Grid size={{ xs: 7, sm: 6, md: 4, lg: 4 }} key={video.id}>
+        <Grid size={{ xs: 7, sm: 6, md: 4, lg: 3 }} key={video.id}>
           <VideoOptionTile video={video} />
         </Grid>
       ))}
