@@ -1,8 +1,8 @@
 import { Box, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 import styles from "./styles";
-import { timeSinceUpload } from "../../../utils/helpers";
-import { VideoOption } from "../../../utils/types";
+import { timeSinceUpload } from "../../../../utils/helpers";
+import { VideoOption } from "../../../../utils/types";
 
 type ReccomendedTileProps = {
   video: VideoOption;
@@ -35,7 +35,7 @@ function ReccomendedTile({ video }: ReccomendedTileProps) {
           {video.uploaderDisplayName}
         </Typography>
         <Typography variant="body2" color="textSecondary">
-          {video.views} views • {timeSinceUpload(video.uploadDate)}
+          {video.views} views • {timeSinceUpload(video.uploadTimestamp)}
         </Typography>
       </Box>
     </Box>

@@ -4,7 +4,7 @@ export type VideoOption = {
   title: string;
   uploaderDisplayName: string;
   uploaderPfp: string;
-  uploadDate: string;
+  uploadTimestamp: string;
   views: number;
   thumbnailSignedLink: string;
 };
@@ -16,7 +16,18 @@ export type VideoDetails = {
   description: string;
   uploaderDisplayName: string;
   uploaderPfp: string;
-  uploadDate: string;
+  uploadTimestamp: string;
   views: number;
+  numComments: number;
   videoSignedUrl: string;
+};
+
+// Representation of a comment on a video.
+export type CommentDetails = {
+  id: string;
+  comment: string;
+  commenterId: string;
+  commenterDisplayName: string;
+  commenterPfp: string;
+  commentTimestamp: string;
 };

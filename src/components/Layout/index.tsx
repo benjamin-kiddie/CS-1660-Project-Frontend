@@ -38,8 +38,8 @@ type LayoutProps = {
 function Layout({ children }: LayoutProps) {
   const { user, setUser } = useUser();
   const [search, setSearch] = useState<string>("");
-  const [textFieldWidth, setTextFieldWidth] = useState<number>(0);
-  const textFieldRef = useRef<HTMLInputElement>(null);
+  const [searchBarWidth, setTextFieldWidth] = useState<number>(0);
+  const searchBarRef = useRef<HTMLInputElement>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
 
@@ -76,13 +76,13 @@ function Layout({ children }: LayoutProps) {
    * Update the requisite margin whenever the window resizes.
    */
   useEffect(() => {
-    if (textFieldRef.current) {
-      setTextFieldWidth(textFieldRef.current.offsetWidth);
+    if (searchBarRef.current) {
+      setTextFieldWidth(searchBarRef.current.offsetWidth);
     }
 
     const handleResize = () => {
-      if (textFieldRef.current) {
-        setTextFieldWidth(textFieldRef.current.offsetWidth);
+      if (searchBarRef.current) {
+        setTextFieldWidth(searchBarRef.current.offsetWidth);
       }
     };
 
@@ -100,8 +100,8 @@ function Layout({ children }: LayoutProps) {
             sx={{
               ...styles.leftContainer,
               marginRight:
-                textFieldWidth > 0
-                  ? `max(0px, calc(50% - 226px - (0.5 * ${textFieldWidth}px)))`
+                searchBarWidth > 0
+                  ? `max(0px, calc(50% - 207px - (0.5 * ${searchBarWidth}px)))`
                   : "0px",
             }}
           >
@@ -123,7 +123,7 @@ function Layout({ children }: LayoutProps) {
           </Box>
           <Box sx={styles.searchBarContainer}>
             <TextField
-              ref={textFieldRef}
+              ref={searchBarRef}
               variant="outlined"
               size="small"
               placeholder="Search..."
