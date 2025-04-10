@@ -31,6 +31,7 @@ const styles = {
     flexDirection: "row",
     gap: "10px",
     alignItems: "start",
+    position: "relative",
   },
   avatar: {
     marginTop: "5px",
@@ -40,6 +41,11 @@ const styles = {
     flexDirection: "row",
     alignItems: "center",
     gap: "4px",
+  },
+  commentMenuButton: {
+    position: "absolute",
+    top: "8px",
+    right: "8px",
   },
   refetchLayer: {
     marginBottom: "30px",

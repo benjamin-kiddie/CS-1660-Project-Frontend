@@ -1,8 +1,17 @@
 import {
+  MoreVert as MoreVertIcon,
+  Delete as DeleteIcon,
+} from "@mui/icons-material";
+import {
   Avatar,
   Box,
   Button,
   CircularProgress,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Stack,
   TextField,
   Typography,
@@ -10,7 +19,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import styles from "./styles";
 import { useUser } from "../../../hooks/useUser";
-import { getComments, postComment } from "../../../utils/api";
+import { deleteComment, getComments, postComment } from "../../../utils/api";
 import { timeSinceUpload } from "../../../utils/helpers";
 import { CommentDetails } from "../../../utils/types";
 
@@ -26,6 +35,10 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
   const [hasMoreComments, setHasMoreComments] = useState<boolean>(true);
   const [comments, setComments] = useState<CommentDetails[]>([]);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedCommentId, setSelectedCommentId] = useState<string | null>(
+    null
+  );
   const lastCommentIdRef = useRef<string | undefined>(undefined);
   const observerRef = useRef<HTMLDivElement | null>(null);
 
@@ -88,6 +101,7 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
 
   /**
    * Handle posting a new comment.
+   * Append the new comment to the comment list.
    */
   async function handlePostComment() {
     if (!currentVideoId || !user) return;
@@ -102,6 +116,45 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
       setComments((prevComments) => [newComment, ...prevComments]);
       emptyCommentField();
     }
+  }
+
+  /**
+   * Open the dropdown menu for a comment.
+   */
+  function handleMenuOpen(
+    event: React.MouseEvent<HTMLElement>,
+    commentId: string
+  ) {
+    setAnchorEl(event.currentTarget);
+    setSelectedCommentId(commentId);
+  }
+
+  /**
+   * Close the dropdown menu for a comment.
+   */
+  function handleMenuClose() {
+    setAnchorEl(null);
+    setSelectedCommentId(null);
+  }
+
+  /**
+   * Handle deleting a comment.
+   * Delete the comment from the comment list.
+   */
+  async function handleDeleteComment() {
+    if (!currentVideoId || !selectedCommentId || !user) return;
+    const token = await user.getIdToken();
+    const success = await deleteComment(
+      currentVideoId,
+      selectedCommentId,
+      token
+    );
+    if (success) {
+      setComments((prevComments) =>
+        prevComments.filter((comment) => comment.id !== selectedCommentId)
+      );
+    }
+    handleMenuClose();
   }
 
   return (
@@ -154,7 +207,7 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
               alt={comment.commenterDisplayName}
               sx={styles.avatar}
             />
-            <Stack>
+            <Stack width="100%">
               <Box sx={styles.commentHeader}>
                 <Typography fontWeight={500}>
                   {comment.commenterDisplayName}
@@ -162,11 +215,32 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
                 <Typography color="text.secondary" variant="body2">
                   {timeSinceUpload(comment.commentTimestamp)}
                 </Typography>
+                {comment.commenterId === user?.uid && (
+                  <IconButton
+                    size="small"
+                    onClick={(e) => handleMenuOpen(e, comment.id)}
+                    sx={styles.commentMenuButton}
+                  >
+                    <MoreVertIcon fontSize="small" />
+                  </IconButton>
+                )}
               </Box>
-              <Typography>{comment.comment}</Typography>
+              <Typography width="95%">{comment.comment}</Typography>
             </Stack>
           </Box>
         ))}
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleMenuClose}
+        >
+          <MenuItem onClick={handleDeleteComment}>
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Delete" />
+          </MenuItem>
+        </Menu>
         {loadingComments && (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             <CircularProgress />

@@ -26,6 +26,7 @@ export type VideoDetails = {
 export type CommentDetails = {
   id: string;
   comment: string;
+  commenterId: string;
   commenterDisplayName: string;
   commenterPfp: string;
   commentTimestamp: string;

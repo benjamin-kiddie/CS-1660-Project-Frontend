@@ -34,9 +34,6 @@ export function uploadVideo(
     body: formData,
   })
     .then((response) => response.json())
-    .then((data) => {
-      console.log("Video and thumbnail uploaded successfully:", data);
-    })
     .catch((error) => {
       console.error("Error uploading video:", error);
     });
@@ -180,5 +177,37 @@ export async function postComment(
   } catch (error) {
     console.error("Error posting comment:", error);
     return null;
+  }
+}
+
+/**
+ * Delete a comment from the API.
+ * @param {string} videoId ID of the video.
+ * @param {string} commentId ID of the comment.
+ * @param {string} token JWT for authorization.
+ * @return {Promise<boolean>} True if the comment was deleted successfully, false otherwise.
+ */
+export async function deleteComment(
+  videoId: string,
+  commentId: string,
+  token?: string
+): Promise<boolean> {
+  try {
+    const response = await fetch(
+      `${apiUrl}/video/${videoId}/comments/${commentId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to delete comment");
+    }
+    return true;
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    return false;
   }
 }
