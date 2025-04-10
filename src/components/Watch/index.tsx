@@ -76,7 +76,12 @@ function Watch() {
             <Box sx={styles.titleUploaderContainer}>
               <Skeleton variant="text" width="60%" height={40} />
               <Box sx={styles.uploaderContainer}>
-                <Skeleton variant="circular" width={40} height={40} />
+                <Skeleton
+                  variant="circular"
+                  width={40}
+                  height={40}
+                  sx={styles.avatar}
+                />
                 <Skeleton variant="text" width="30%" height={30} />
               </Box>
             </Box>
