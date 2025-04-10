@@ -1,20 +1,20 @@
 const styles = {
   content: {
-    width: "95%",
+    maxWidth: { xs: "100%", md: "90%" },
     display: "flex",
-    flexDirection: { xs: "column", lg: "row" },
+    flexDirection: { xs: "column", md: "row" },
     gap: "20px",
     justifyContent: "center",
     alignItems: "stretch",
   },
   videoContentContainer: {
-    width: { xs: "100%", lg: "75%" },
-    minWidth: "600px",
+    width: { xs: "100%", md: "75%" },
+    minWidth: { xs: "100%", md: "500px" },
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    overflow: "auto",
+    overflow: "visible",
   },
   playerContainer: {
     maxHeight: "600px",
@@ -35,6 +35,12 @@ const styles = {
     marginTop: "10px",
   },
   avatar: { marginRight: "10px" },
+  descriptionSkeleton: {
+    width: "100%",
+    height: "60px",
+    borderRadius: 3,
+    marginTop: "10px",
+  },
   descriptionBox: {
     width: "100%",
     marginTop: "10px",
@@ -53,12 +59,6 @@ const styles = {
     fontWeight: "bold",
     cursor: "pointer",
     marginLeft: "10px",
-  },
-  reccomendedContainer: {
-    height: "100%",
-    minWidth: "308px",
-    width: { xs: "100%", lg: "25%" },
-    overflow: "auto",
   },
 };
 

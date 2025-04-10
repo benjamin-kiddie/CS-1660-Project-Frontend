@@ -1,10 +1,10 @@
 /**
  * Find the time since upload, rounded to the largest unit of time.
- * @param {string} uploadDate Upload time in UTC format.
+ * @param {string} uploadTimestamp Upload time in UTC format.
  * @returns {string} String showing time since upload.
  */
-export function timeSinceUpload(uploadDate: string): string {
-  const uploadTime = new Date(uploadDate);
+export function timeSinceUpload(uploadTimestamp: string): string {
+  const uploadTime = new Date(uploadTimestamp);
   const now = new Date();
   const diffInSeconds = Math.floor(
     (now.getTime() - uploadTime.getTime()) / 1000

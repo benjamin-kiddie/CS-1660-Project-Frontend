@@ -40,7 +40,7 @@ function VideoOptionTile({ video }: VideoOptionTileProps) {
             {video.uploaderDisplayName}{" "}
           </Typography>
           <Typography variant="body2" color="textSecondary" noWrap>
-            {video.views} views • {timeSinceUpload(video.uploadDate)}{" "}
+            {video.views} views • {timeSinceUpload(video.uploadTimestamp)}{" "}
           </Typography>
         </Box>
       </Stack>
