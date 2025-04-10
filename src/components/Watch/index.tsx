@@ -68,19 +68,22 @@ function Watch() {
   return (
     <Box sx={styles.content}>
       {loading ? (
-        <Box sx={styles.videoContentContainer}>
-          <Box sx={styles.playerContainer}>
-            <Skeleton variant="rectangular" width="100%" height="100%" />
-          </Box>
-          <Box sx={styles.titleUploaderContainer}>
-            <Skeleton variant="text" width="60%" height={40} />
-            <Box sx={styles.uploaderContainer}>
-              <Skeleton variant="circular" width={40} height={40} />
-              <Skeleton variant="text" width="30%" height={30} sx={{ ml: 2 }} />
+        <>
+          <Box sx={styles.videoContentContainer}>
+            <Box sx={styles.playerContainer}>
+              <Skeleton variant="rectangular" width="100%" height="100%" />
             </Box>
+            <Box sx={styles.titleUploaderContainer}>
+              <Skeleton variant="text" width="60%" height={40} />
+              <Box sx={styles.uploaderContainer}>
+                <Skeleton variant="circular" width={40} height={40} />
+                <Skeleton variant="text" width="30%" height={30} />
+              </Box>
+            </Box>
+            <Skeleton variant="rectangular" sx={styles.descriptionSkeleton} />
           </Box>
-          <Skeleton variant="rectangular" sx={styles.descriptionSkeleton} />
-        </Box>
+          <Box sx={styles.reccomendedContainerSkeleton} />
+        </>
       ) : !videoDetails ? (
         <Box sx={{ textAlign: "center", mt: 4 }}>
           <Typography color="text.primary" variant="h6">

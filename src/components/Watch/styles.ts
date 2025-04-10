@@ -1,6 +1,6 @@
 const styles = {
   content: {
-    maxWidth: { xs: "100%", md: "90%" },
+    width: { xs: "100%", md: "90%" },
     display: "flex",
     flexDirection: { xs: "column", md: "row" },
     gap: "20px",
@@ -15,6 +15,11 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     overflow: "visible",
+  },
+  reccomendedContainerSkeleton: {
+    height: "100%",
+    minWidth: "308px",
+    width: { xs: "100%", md: "25%" },
   },
   playerContainer: {
     maxHeight: "600px",
