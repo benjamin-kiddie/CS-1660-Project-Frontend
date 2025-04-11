@@ -16,7 +16,7 @@ const styles = {
     alignItems: "center",
     overflow: "visible",
   },
-  reccomendedContainerSkeleton: {
+  recommendedContainerSkeleton: {
     height: "100%",
     minWidth: "308px",
     width: { xs: "100%", md: "25%" },

@@ -4,7 +4,7 @@ import styles from "./styles";
 import { timeSinceUpload } from "../../../../utils/helpers";
 import { VideoOption } from "../../../../utils/types";
 
-type ReccomendedTileProps = {
+type RecommendedTileProps = {
   video: VideoOption;
 };
 
@@ -12,7 +12,7 @@ type ReccomendedTileProps = {
  * Video option on video sidebar.
  * Shows a video thumbnail, title, author, views, and time since upload.
  */
-function ReccomendedTile({ video }: ReccomendedTileProps) {
+function RecommendedTile({ video }: RecommendedTileProps) {
   return (
     <Box sx={styles.tile}>
       <Box sx={styles.thumbnailContainer}>
@@ -42,4 +42,4 @@ function ReccomendedTile({ video }: ReccomendedTileProps) {
   );
 }
 
-export default ReccomendedTile;
+export default RecommendedTile;

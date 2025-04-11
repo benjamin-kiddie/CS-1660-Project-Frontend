@@ -7,17 +7,17 @@ import {
   useTheme,
 } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import ReccomendedTile from "./ReccomendedTile";
+import RecommendedTile from "./RecommendedTile";
 import { useUser } from "../../../hooks/useUser";
 import { getVideoOptions } from "../../../utils/api";
 import { VideoOption } from "../../../utils/types";
 
-type ReccomendedFeedProps = {
+type RecommendedFeedProps = {
   currentVideoId: string;
 };
 
 const styles = {
-  reccomendedContainer: {
+  recommendedContainer: {
     height: "100%",
     minWidth: "308px",
     width: { xs: "100%", md: "25%" },
@@ -29,9 +29,9 @@ const styles = {
 };
 
 /**
- * Reccomended feed used in Watch component.
+ * Recommended feed used in Watch component.
  */
-function ReccomendedFeed({ currentVideoId }: ReccomendedFeedProps) {
+function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
   const { user } = useUser();
   const theme = useTheme();
   const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
@@ -142,10 +142,10 @@ function ReccomendedFeed({ currentVideoId }: ReccomendedFeedProps) {
   }, [hasMoreVideos]);
 
   return (
-    <Box sx={styles.reccomendedContainer}>
+    <Box sx={styles.recommendedContainer}>
       <Stack spacing={2}>
         {videoList.map((video) => (
-          <ReccomendedTile video={video} key={video.id} />
+          <RecommendedTile video={video} key={video.id} />
         ))}
       </Stack>
       {loading && (
@@ -170,4 +170,4 @@ function ReccomendedFeed({ currentVideoId }: ReccomendedFeedProps) {
   );
 }
 
-export default ReccomendedFeed;
+export default RecommendedFeed;

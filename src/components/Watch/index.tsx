@@ -11,7 +11,7 @@ import { useCallback, useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { useParams } from "react-router-dom";
 import CommentSection from "./CommentSection";
-import ReccomendedFeed from "./ReccomendedFeed";
+import RecommendedFeed from "./RecommendedFeed";
 import styles from "./styles";
 import { useUser } from "../../hooks/useUser";
 import { getVideoDetails, incrementViewCount } from "../../utils/api";
@@ -20,7 +20,7 @@ import { VideoDetails } from "../../utils/types";
 
 /**
  * Watch page for a video.
- * Contains player, info, comments section, and reccomended videos feed.
+ * Contains player, info, comments section, and recommended videos feed.
  */
 function Watch() {
   const theme = useTheme();
@@ -87,7 +87,7 @@ function Watch() {
             </Box>
             <Skeleton variant="rectangular" sx={styles.descriptionSkeleton} />
           </Box>
-          <Box sx={styles.reccomendedContainerSkeleton} />
+          <Box sx={styles.recommendedContainerSkeleton} />
         </>
       ) : !videoDetails ? (
         <Box sx={{ textAlign: "center", mt: 4 }}>
@@ -178,7 +178,7 @@ function Watch() {
               />
             )}
           </Box>
-          <ReccomendedFeed currentVideoId={videoDetails.id} />
+          <RecommendedFeed currentVideoId={videoDetails.id} />
           {isBelowMd && (
             <CommentSection
               numComments={videoDetails.numComments}
