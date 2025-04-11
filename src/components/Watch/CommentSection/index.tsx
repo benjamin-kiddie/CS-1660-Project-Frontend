@@ -32,7 +32,7 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
   const { user } = useUser();
   const [comment, setComment] = useState<string>("");
   const [showCommentButtons, setShowCommentButtons] = useState<boolean>(false);
-  const [loadingComments, setLoadingComments] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [hasMoreComments, setHasMoreComments] = useState<boolean>(true);
   const [comments, setComments] = useState<CommentDetails[]>([]);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -41,11 +41,18 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
   );
   const lastCommentIdRef = useRef<string | undefined>(undefined);
   const observerRef = useRef<HTMLDivElement | null>(null);
+  const observerInstanceRef = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => {
+    setComments([]);
+    setHasMoreComments(true);
+    lastCommentIdRef.current = undefined;
+  }, [currentVideoId]);
 
   useEffect(() => {
     const fetchComments = async () => {
-      if (!currentVideoId || !user || loadingComments) return;
-      setLoadingComments(true);
+      if (!currentVideoId || !user || loading) return;
+      setLoading(true);
       const token = await user.getIdToken();
       const { comments: newComments, hasMore } = await getComments(
         currentVideoId,
@@ -55,17 +62,17 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
       if (newComments.length > 0) {
         setComments((prevComments) => [...prevComments, ...newComments]);
         lastCommentIdRef.current = newComments[newComments.length - 1].id;
-        if (!hasMore) {
-          setHasMoreComments(false);
-        }
       }
-      setLoadingComments(false);
+      if (!hasMore) {
+        setHasMoreComments(false);
+      }
+      setLoading(false);
     };
 
     if (hasMoreComments) {
       const observer = new IntersectionObserver(
         (entries) => {
-          if (entries[0].isIntersecting && !loadingComments) {
+          if (entries[0].isIntersecting && !loading) {
             fetchComments();
           }
         },
@@ -77,19 +84,22 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
         observer.observe(currentObserverRef);
       }
 
+      observerInstanceRef.current = observer;
+
       return () => {
         if (currentObserverRef) {
           observer.unobserve(currentObserverRef);
         }
+        observer.disconnect();
       };
     }
-  }, [
-    user,
-    currentVideoId,
-    lastCommentIdRef,
-    hasMoreComments,
-    loadingComments,
-  ]);
+  }, [currentVideoId, hasMoreComments, loading, user]);
+
+  useEffect(() => {
+    if (!hasMoreComments && observerInstanceRef.current) {
+      observerInstanceRef.current.disconnect();
+    }
+  }, [hasMoreComments]);
 
   /**
    * Empty the comment field and hide the comment buttons.
@@ -241,7 +251,7 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
             <ListItemText primary="Delete" />
           </MenuItem>
         </Menu>
-        {loadingComments && (
+        {loading && (
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             <CircularProgress />
           </Box>
