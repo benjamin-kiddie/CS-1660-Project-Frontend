@@ -41,12 +41,27 @@ export function uploadVideo(
 
 /**
  * Fetch video options from the API.
+ * @param {string} seed Seed for randomization.
+ * @param {number} page Page number for pagination.
+ * @param {number} limit Number of video options to fetch.
  * @param {string} token JWT for authorization.
- * @returns {Promise<VideoOption[]>} Array of video options.
+ * @returns {Promise<VideoOption[], boolean>} Array of video options and whether or not more can be fetched.
  */
-export async function getVideoOptions(token?: string): Promise<VideoOption[]> {
+export async function getVideoOptions(
+  seed: string,
+  page?: number,
+  limit?: number,
+  excludeId?: string,
+  token?: string
+): Promise<{ videoOptions: VideoOption[]; hasMore: boolean }> {
   try {
-    const response = await fetch(`${apiUrl}/video`, {
+    const queryParams = new URLSearchParams();
+    queryParams.append("seed", seed);
+    if (page !== undefined) queryParams.append("page", page.toString());
+    if (limit !== undefined) queryParams.append("limit", limit.toString());
+    if (excludeId) queryParams.append("excludeId", excludeId);
+
+    const response = await fetch(`${apiUrl}/video?${queryParams.toString()}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -56,10 +71,10 @@ export async function getVideoOptions(token?: string): Promise<VideoOption[]> {
     if (!response.ok) {
       throw new Error(data.error);
     }
-    return data.videoOptions;
+    return data;
   } catch (error) {
     console.error("Error fetching video options:", error);
-    return [];
+    return { videoOptions: [], hasMore: true };
   }
 }
 
@@ -125,10 +140,11 @@ export async function getComments(
   token?: string
 ): Promise<{ comments: CommentDetails[]; hasMore: boolean }> {
   try {
+    const queryParams = new URLSearchParams();
+    if (lastCommentId) queryParams.append("lastCommentId", lastCommentId);
+
     const response = await fetch(
-      `${apiUrl}/video/${videoId}/comments${
-        lastCommentId ? `/?lastCommentId=${lastCommentId}` : ""
-      }`,
+      `${apiUrl}/video/${videoId}/comments?${queryParams.toString()}`,
       {
         method: "GET",
         headers: {

@@ -178,7 +178,7 @@ function Watch() {
               />
             )}
           </Box>
-          <ReccomendedFeed currentVideoId={videoDetails?.id || ""} />
+          <ReccomendedFeed currentVideoId={videoDetails.id} />
           {isBelowMd && (
             <CommentSection
               numComments={videoDetails.numComments}
