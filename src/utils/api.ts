@@ -227,3 +227,25 @@ export async function deleteComment(
     return false;
   }
 }
+
+/**
+ * Toggle the like/dislike reactino for a video.
+ * @param {string} videoId ID of the video.
+ * @param {'like' | 'dislike'} type Type of reaction to toggle.
+ * @param {string} token JWT for authorization.
+ */
+export async function toggleReaction(videoId: string, type: 'like' | 'dislike', token?: string) {
+  try {
+    const response = await fetch(`${apiUrl}/video/${videoId}/${type}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to update reaction");
+    }
+  } catch (error) {
+    console.error("Error updating reaction:", error);
+  }
+}
