@@ -4,9 +4,11 @@ import {
   Button,
   Skeleton,
   Typography,
+  IconButton,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
+import { ThumbUp, ThumbDown } from "@mui/icons-material"
 import { useCallback, useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { useParams } from "react-router-dom";
@@ -14,7 +16,7 @@ import CommentSection from "./CommentSection";
 import RecommendedFeed from "./RecommendedFeed";
 import styles from "./styles";
 import { useUser } from "../../hooks/useUser";
-import { getVideoDetails, incrementViewCount } from "../../utils/api";
+import { getVideoDetails, incrementViewCount, toggleReaction } from "../../utils/api";
 import { timeSinceUpload } from "../../utils/helpers";
 import { VideoDetails } from "../../utils/types";
 
@@ -64,6 +66,37 @@ function Watch() {
     const token = await user.getIdToken();
     incrementViewCount(videoDetails.id, token);
   }
+
+  /**
+   * Handle user adding like/dislike to video
+   */
+  async function handleLikeDislike(type: "like" | "dislike") {
+    if (!videoId || !user || !videoDetails) return;
+    
+    const token = await user.getIdToken();
+    const status = videoDetails.userLikeStatus;
+  
+    setVideoDetails(prev => {
+      if (!prev) return prev;
+      
+      const newVideoDetails = {...prev};
+      
+      if (status === type) {
+        newVideoDetails.userLikeStatus = null;
+        newVideoDetails[type === 'like' ? 'likes' : 'dislikes'] -= 1;
+      } else {
+        if (status) {
+          newVideoDetails[status === 'like' ? 'likes' : 'dislikes'] -= 1;
+        }
+        newVideoDetails.userLikeStatus = type;
+        newVideoDetails[type === 'like' ? 'likes' : 'dislikes'] += 1;
+      }
+      
+      return newVideoDetails;
+    });
+  
+    await toggleReaction(videoId, type, token);
+  } 
 
   return (
     <Box sx={styles.content}>
@@ -128,15 +161,39 @@ function Watch() {
               <Typography variant="h5" gutterBottom fontWeight="bold">
                 {videoDetails.title}
               </Typography>
-              <Box sx={styles.uploaderContainer}>
-                <Avatar
-                  src={videoDetails.uploaderPfp}
-                  alt={videoDetails.uploaderDisplayName}
-                  sx={styles.avatar}
-                />
-                <Typography fontSize={17} fontWeight={500}>
-                  {videoDetails.uploaderDisplayName}
-                </Typography>
+              <Box sx={styles.uploaderLikeContainer}>
+                <Box sx={styles.uploaderContainer}>
+                  <Avatar
+                    src={videoDetails.uploaderPfp}
+                    alt={videoDetails.uploaderDisplayName}
+                    sx={styles.avatar}
+                  />
+                  <Typography fontSize={17} fontWeight={500}>
+                    {videoDetails.uploaderDisplayName}
+                  </Typography>
+                </Box>
+                <Box sx={styles.likeDislikeContainer}>
+                  <IconButton
+                    onClick={() => handleLikeDislike("like")}
+                    sx={[
+                      styles.likeButton,
+                      videoDetails.userLikeStatus === "like" && styles.likeButtonActive,
+                    ]}
+                  >
+                    <ThumbUp />
+                    <Typography>{videoDetails.likes}</Typography>
+                  </IconButton>
+                  <IconButton
+                    onClick={() => handleLikeDislike("dislike")}
+                    sx={[
+                      styles.dislikeButton,
+                      videoDetails.userLikeStatus === "dislike" && styles.dislikeButtonActive,
+                    ]}
+                  >
+                    <ThumbDown />
+                    <Typography>{videoDetails.dislikes}</Typography>
+                  </IconButton>
+                </Box>
               </Box>
             </Box>
             <Box sx={styles.descriptionBox}>

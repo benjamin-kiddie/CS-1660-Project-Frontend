@@ -18,6 +18,9 @@ export type VideoDetails = {
   uploaderPfp: string;
   uploadTimestamp: string;
   views: number;
+  likes: number;
+  dislikes: number;
+  userLikeStatus: "like" | "dislike" | null;
   numComments: number;
   videoSignedUrl: string;
 };

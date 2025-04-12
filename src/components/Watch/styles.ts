@@ -33,11 +33,17 @@ const styles = {
     textAlign: "left",
     width: "100%",
   },
-  uploaderContainer: {
-    width: "100%",
+  uploaderLikeContainer: {
     display: "flex",
+    justifyContent: "space-between",
     alignItems: "center",
+    width: "100%",
     marginTop: "10px",
+  },
+  uploaderContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   avatar: { marginRight: "10px" },
   descriptionSkeleton: {
@@ -64,6 +70,32 @@ const styles = {
     fontWeight: "bold",
     cursor: "pointer",
     marginLeft: "10px",
+  },
+  likeDislikeContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "15px",
+  },
+  likeButton: {
+    display: "flex",
+    alignItems: "center",
+    color: "#888",
+    gap: "4px",
+  },
+  dislikeButton: {
+    display: "flex",
+    alignItems: "center",
+    color: "#888",
+    gap: "4px",
+  },
+  likeButtonActive: {
+    color: "#1976d2",
+  },
+  dislikeButtonActive: {
+    color: "#1976d2",
+  },
+  thumbIcon: {
+    marginRight: "8px",
   },
 };
 
