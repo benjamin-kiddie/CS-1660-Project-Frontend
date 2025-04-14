@@ -1,6 +1,7 @@
 import {
   Search as SearchIcon,
   Logout as LogoutIcon,
+  AccountCircle as ProfileIcon,
   Menu as MenuIcon,
 } from "@mui/icons-material";
 import {
@@ -40,22 +41,39 @@ function Layout({ children }: LayoutProps) {
   const [search, setSearch] = useState<string>("");
   const [textFieldWidth, setTextFieldWidth] = useState<number>(0);
   const textFieldRef = useRef<HTMLInputElement>(null);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const open = Boolean(anchorEl);
+  const [logoutMenuAnchorEl, setLogoutMenuAnchorEl] = useState<HTMLElement | null>(null);
+  const [sideMenuAnchorEl, setSideMenuAnchorEl] = useState<HTMLElement | null>(null);
+  const sideMenuOpen = Boolean(sideMenuAnchorEl);
+  const logoutMenuOpen = Boolean(logoutMenuAnchorEl);
 
   /**
    * Open the logout menu.
    * @param {React.MouseEvent<HTMLElement>} event user click event.
    */
   function handleLogoutMenuOpen(event: React.MouseEvent<HTMLElement>) {
-    setAnchorEl(event.currentTarget);
+    setLogoutMenuAnchorEl(event.currentTarget);
+  }
+
+  /**
+   * Open the side menu.
+   * @param {React.MouseEvent<HTMLElement>} event user click event.
+   */
+   function handleSideMenuOpen(event: React.MouseEvent<HTMLElement>) {  
+    setSideMenuAnchorEl(event.currentTarget);
   }
 
   /**
    * Close the logout menu.
    */
-  function handleLogoutMenuClose() {
-    setAnchorEl(null);
+   function handleLogoutMenuClose() {
+    setLogoutMenuAnchorEl(null);
+  }
+
+  /**
+   * Close the side menu.
+   */
+  function handleSideMenuClose() {
+    setSideMenuAnchorEl(null);
   }
 
   /**
@@ -69,6 +87,13 @@ function Layout({ children }: LayoutProps) {
       .catch((error) => {
         console.error("Error signing out: ", error);
       });
+  }
+
+  /**
+   * Handle a navigation in profile page.
+   */
+  function handleProfile() {
+    navigate("/profile")
   }
 
   /**
@@ -106,14 +131,40 @@ function Layout({ children }: LayoutProps) {
             }}
           >
             <IconButton
+              onClick={handleSideMenuOpen}
               size="large"
               edge="start"
               color="inherit"
               aria-label="open drawer"
+              aria-controls={sideMenuOpen ? "side-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={sideMenuOpen ? "true" : undefined}
               sx={{ mr: 2 }}
             >
               <MenuIcon />
             </IconButton>
+            <Menu
+                id="side-menu"
+                anchorEl={sideMenuAnchorEl}
+                open={sideMenuOpen}
+                onClose={handleSideMenuClose}
+                onClick={handleSideMenuClose}
+                slotProps={{
+                  paper: {
+                    elevation: 3,
+                    sx: styles.sideMenu,
+                  },
+                }}
+                transformOrigin={{ horizontal: "right", vertical: "top" }}
+                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+              >
+                <MenuItem onClick={handleProfile}>
+                  <ListItemIcon>
+                    <ProfileIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Profile" />
+                </MenuItem>
+              </Menu>
             <Link to="/home" style={styles.logoAndTitle}>
               <img src="videoplayer.svg" style={styles.logo} />
               <Typography variant="h5">ScuffTube</Typography>
@@ -145,9 +196,9 @@ function Layout({ children }: LayoutProps) {
               <IconButton
                 onClick={handleLogoutMenuOpen}
                 size="small"
-                aria-controls={open ? "avatar-menu" : undefined}
+                aria-controls={logoutMenuOpen ? "avatar-menu" : undefined}
                 aria-haspopup="true"
-                aria-expanded={open ? "true" : undefined}
+                aria-expanded={logoutMenuOpen ? "true" : undefined}
                 sx={styles.avatarContainer}
               >
                 <Avatar
@@ -157,8 +208,8 @@ function Layout({ children }: LayoutProps) {
               </IconButton>
               <Menu
                 id="avatar-menu"
-                anchorEl={anchorEl}
-                open={open}
+                anchorEl={logoutMenuAnchorEl}
+                open={logoutMenuOpen}
                 onClose={handleLogoutMenuClose}
                 onClick={handleLogoutMenuClose}
                 slotProps={{
@@ -170,6 +221,12 @@ function Layout({ children }: LayoutProps) {
                 transformOrigin={{ horizontal: "right", vertical: "top" }}
                 anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
               >
+                <MenuItem onClick={handleProfile}>
+                  <ListItemIcon>
+                    <ProfileIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Profile" />
+                </MenuItem>
                 <MenuItem onClick={handleLogout}>
                   <ListItemIcon>
                     <LogoutIcon fontSize="small" />

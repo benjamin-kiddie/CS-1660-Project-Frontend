@@ -65,3 +65,27 @@ export async function getVideoOptions(token?: string): Promise<VideoOption[]> {
     return [];
   }
 }
+
+/**
+ * Fetch user's uploaded video options from the API.
+ * @param {string} token JWT for authorization.
+ * @returns {Promise<VideoOption[]>} Array of video options.
+ */
+ export async function getUserVideoOptions(token?: string, user?: string): Promise<VideoOption[]> {
+  try {
+    const response = await fetch(`${apiUrl}/video/${user}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error);
+    }
+    return data.videoOptions;
+  } catch (error) {
+    console.error("Error fetching video options:", error);
+    return [];
+  }
+}
