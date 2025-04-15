@@ -34,19 +34,22 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <UserProvider>
-          <ProtectedRoute>
-            <Layout>
-              <Routes>
-                <Route path="/home" element={<Home />} />
-                <Route path="/search" element={<Search />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/watch/:videoId" element={<Watch />} />
-                <Route path="*" element={<Navigate to={"/home"} />} />
-              </Routes>
-            </Layout>
-          </ProtectedRoute>
           <Routes>
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="home" element={<Home />} />
+              <Route path="search" element={<Search />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="watch/:videoId" element={<Watch />} />
+            </Route>
             <Route path="/login" element={<Login />} />
+            <Route path="*" element={<Navigate to={"/home"} />} />
           </Routes>
         </UserProvider>
       </Router>

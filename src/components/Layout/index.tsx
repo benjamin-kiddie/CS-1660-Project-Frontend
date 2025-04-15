@@ -19,21 +19,17 @@ import {
   Typography,
 } from "@mui/material";
 import { signOut } from "firebase/auth";
-import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import styles from "./styles";
 import logo from "../../assets/videoplayer.svg";
 import { useUser } from "../../hooks/useUser";
 import { auth } from "../../utils/firebase";
 
-type LayoutProps = {
-  children?: ReactNode;
-};
-
 /**
  * Layout for main pages, including Home, Profile, and Video.
  */
-function Layout({ children }: LayoutProps) {
+function Layout() {
   const navigate = useNavigate();
   const { user, setUser } = useUser();
   const [search, setSearch] = useState<string>("");
@@ -196,7 +192,7 @@ function Layout({ children }: LayoutProps) {
         </Toolbar>
       </AppBar>
       <Container maxWidth={false} sx={styles.mainContent}>
-        {children && children}
+        <Outlet />
       </Container>
     </Container>
   );

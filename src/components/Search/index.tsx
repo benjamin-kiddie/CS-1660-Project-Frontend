@@ -1,4 +1,4 @@
-import { Grid2 as Grid } from "@mui/material";
+import { Box, Grid2 as Grid, Typography } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
@@ -17,6 +17,12 @@ const styles = {
       xl: "90%%",
     },
     height: "100%",
+  },
+  noResults: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "80vh",
   },
   refetchLayer: {
     marginBottom: "30px",
@@ -44,7 +50,6 @@ function Search() {
       setLoading(true);
       const token = await user.getIdToken();
 
-      // call the appropriate API function
       const { videoOptions: newVideoOptions, hasMore } =
         await searchVideoOptions(query, videoPageRef.current, 15, token);
 
@@ -98,19 +103,31 @@ function Search() {
 
   return (
     <>
-      <Grid container spacing={3} sx={styles.grid}>
-        {videoList.map((video) => (
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }} key={video.id}>
-            <VideoOptionTile video={video} />
-          </Grid>
-        ))}
-        {loading &&
-          Array.from({ length: 15 }).map((_, index) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }} key={index}>
-              <VideoOptionTileSkeleton />
+      {(videoList.length > 0 || loading) && (
+        <Grid container spacing={3} sx={styles.grid}>
+          {videoList.map((video) => (
+            <Grid
+              size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
+              key={video.id}
+            >
+              <VideoOptionTile video={video} />
             </Grid>
           ))}
-      </Grid>
+          {loading &&
+            Array.from({ length: 15 }).map((_, index) => (
+              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }} key={index}>
+                <VideoOptionTileSkeleton />
+              </Grid>
+            ))}
+        </Grid>
+      )}
+      {!loading && videoList.length === 0 && (
+        <Box style={styles.noResults}>
+          <Typography variant="h4" color="textSecondary">
+            No results found.
+          </Typography>
+        </Box>
+      )}
       {!loading && hasMoreVideos && (
         <div ref={observerRef} style={styles.refetchLayer} />
       )}
