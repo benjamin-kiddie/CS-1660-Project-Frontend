@@ -20,31 +20,48 @@ import {
   Typography,
 } from "@mui/material";
 import { signOut } from "firebase/auth";
-import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import styles from "./styles";
+import logo from "../../assets/videoplayer.svg";
 import { useUser } from "../../hooks/useUser";
 import { auth } from "../../utils/firebase";
-
-type LayoutProps = {
-  children?: ReactNode;
-};
-
-// TODO: Implement search
 
 /**
  * Layout for main pages, including Home, Profile, and Video.
  */
-function Layout({ children }: LayoutProps) {
-  const { user } = useUser();
+function Layout() {
   const navigate = useNavigate();
+  const { user, setUser } = useUser();
   const [search, setSearch] = useState<string>("");
-  const [textFieldWidth, setTextFieldWidth] = useState<number>(0);
-  const textFieldRef = useRef<HTMLInputElement>(null);
-  const [logoutMenuAnchorEl, setLogoutMenuAnchorEl] = useState<HTMLElement | null>(null);
-  const [sideMenuAnchorEl, setSideMenuAnchorEl] = useState<HTMLElement | null>(null);
+  const [logoutMenuAnchorEl, setLogoutMenuAnchorEl] =
+    useState<HTMLElement | null>(null);
+  const [sideMenuAnchorEl, setSideMenuAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
   const sideMenuOpen = Boolean(sideMenuAnchorEl);
   const logoutMenuOpen = Boolean(logoutMenuAnchorEl);
+  const [searchBarWidth, setTextFieldWidth] = useState<number>(0);
+  const searchBarRef = useRef<HTMLInputElement>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const open = Boolean(anchorEl);
+
+  useEffect(() => {
+    if (searchBarRef.current) {
+      setTextFieldWidth(searchBarRef.current.offsetWidth);
+    }
+
+    const handleResize = () => {
+      if (searchBarRef.current) {
+        setTextFieldWidth(searchBarRef.current.offsetWidth);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   /**
    * Open the logout menu.
@@ -58,14 +75,14 @@ function Layout({ children }: LayoutProps) {
    * Open the side menu.
    * @param {React.MouseEvent<HTMLElement>} event user click event.
    */
-   function handleSideMenuOpen(event: React.MouseEvent<HTMLElement>) {  
+  function handleSideMenuOpen(event: React.MouseEvent<HTMLElement>) {
     setSideMenuAnchorEl(event.currentTarget);
   }
 
   /**
    * Close the logout menu.
    */
-   function handleLogoutMenuClose() {
+  function handleLogoutMenuClose() {
     setLogoutMenuAnchorEl(null);
   }
 
@@ -82,7 +99,7 @@ function Layout({ children }: LayoutProps) {
   function handleLogout() {
     signOut(auth)
       .then(() => {
-        navigate("/login");
+        setUser(null);
       })
       .catch((error) => {
         console.error("Error signing out: ", error);
@@ -93,29 +110,24 @@ function Layout({ children }: LayoutProps) {
    * Handle a navigation in profile page.
    */
   function handleProfile() {
-    navigate("/profile")
+    navigate("/profile");
   }
 
   /**
-   * Manually push the searchbar into the center of the app bar.
-   * Update the requisite margin whenever the window resizes.
+   * Handle pressing "Enter" in the search bar.
+   * Navigate to /search?query=<contents of the searchbar>.
    */
-  useEffect(() => {
-    if (textFieldRef.current) {
-      setTextFieldWidth(textFieldRef.current.offsetWidth);
-    }
-
-    const handleResize = () => {
-      if (textFieldRef.current) {
-        setTextFieldWidth(textFieldRef.current.offsetWidth);
+  function handleSearchKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter" && search.trim() !== "") {
+      navigate(`/search?query=${encodeURIComponent(search.trim())}`);
+      if (searchBarRef.current) {
+        const inputElement = searchBarRef.current.querySelector("input");
+        if (inputElement) {
+          inputElement.blur();
+        }
       }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+    }
+  }
 
   return (
     <Container maxWidth={false} disableGutters>
@@ -125,8 +137,8 @@ function Layout({ children }: LayoutProps) {
             sx={{
               ...styles.leftContainer,
               marginRight:
-                textFieldWidth > 0
-                  ? `max(0px, calc(50% - 226px - (0.5 * ${textFieldWidth}px)))`
+                searchBarWidth > 0
+                  ? `max(0px, calc(50% - 207px - (0.5 * ${searchBarWidth}px)))`
                   : "0px",
             }}
           >
@@ -139,40 +151,42 @@ function Layout({ children }: LayoutProps) {
               aria-controls={sideMenuOpen ? "side-menu" : undefined}
               aria-haspopup="true"
               aria-expanded={sideMenuOpen ? "true" : undefined}
-              sx={{ mr: 2 }}
+              sx={styles.drawerButton}
             >
               <MenuIcon />
             </IconButton>
             <Menu
-                id="side-menu"
-                anchorEl={sideMenuAnchorEl}
-                open={sideMenuOpen}
-                onClose={handleSideMenuClose}
-                onClick={handleSideMenuClose}
-                slotProps={{
-                  paper: {
-                    elevation: 3,
-                    sx: styles.sideMenu,
-                  },
-                }}
-                transformOrigin={{ horizontal: "right", vertical: "top" }}
-                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-              >
-                <MenuItem onClick={handleProfile}>
-                  <ListItemIcon>
-                    <ProfileIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText primary="Profile" />
-                </MenuItem>
-              </Menu>
+              id="side-menu"
+              anchorEl={sideMenuAnchorEl}
+              open={sideMenuOpen}
+              onClose={handleSideMenuClose}
+              onClick={handleSideMenuClose}
+              slotProps={{
+                paper: {
+                  elevation: 3,
+                  sx: styles.sideMenu,
+                },
+              }}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+            >
+              <MenuItem onClick={handleProfile}>
+                <ListItemIcon>
+                  <ProfileIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Profile" />
+              </MenuItem>
+            </Menu>
             <Link to="/home" style={styles.logoAndTitle}>
-              <img src="videoplayer.svg" style={styles.logo} />
-              <Typography variant="h5">ScuffTube</Typography>
+              <img src={logo} style={styles.logo} />
+              <Typography variant="h5" fontWeight={500}>
+                ScuffTube
+              </Typography>
             </Link>
           </Box>
           <Box sx={styles.searchBarContainer}>
             <TextField
-              ref={textFieldRef}
+              ref={searchBarRef}
               variant="outlined"
               size="small"
               placeholder="Search..."
@@ -189,6 +203,7 @@ function Layout({ children }: LayoutProps) {
               sx={styles.searchBar}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
             />
           </Box>
           {user && (
@@ -238,8 +253,8 @@ function Layout({ children }: LayoutProps) {
           )}
         </Toolbar>
       </AppBar>
-      <Container color="secondary" sx={styles.mainContent}>
-        {children && children}
+      <Container maxWidth={false} sx={styles.mainContent}>
+        <Outlet />
       </Container>
     </Container>
   );

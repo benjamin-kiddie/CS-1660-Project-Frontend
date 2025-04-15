@@ -5,17 +5,17 @@ import {
   Route,
   BrowserRouter as Router,
   Routes,
-  useLocation
 } from "react-router-dom";
 import Home from "./components/Home";
 import Layout from "./components/Layout";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
-import UploadForm from "./components/Profile/UploadForm";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Search from "./components/Search";
 import { UserProvider } from "./components/UserProvider";
+import Watch from "./components/Watch";
 
 function App() {
-
   const theme = createTheme({
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -32,38 +32,27 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <UserProvider>
-        <Router>
+      <Router>
+        <UserProvider>
           <Routes>
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="home" element={<Home />} />
+              <Route path="search" element={<Search />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="watch/:videoId" element={<Watch />} />
+            </Route>
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/home"
-              element={
-                <Layout>
-                  <Home />
-                </Layout>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <Layout>
-                  <Profile />
-                </Layout>
-              }
-            />
-            <Route
-              path="/upload"
-              element={
-                <Layout>
-                  <UploadForm />
-                </Layout>
-              }
-            />
-            <Route path="*" element={<Navigate to={"/login"} />} />
+            <Route path="*" element={<Navigate to={"/home"} />} />
           </Routes>
-        </Router>
-      </UserProvider>
+        </UserProvider>
+      </Router>
     </ThemeProvider>
   );
 }
