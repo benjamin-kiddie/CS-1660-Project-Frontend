@@ -16,6 +16,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom"
 import { useState } from "react";
 import { useUser } from "../../hooks/useUser";
 import { uploadVideo } from "../../utils/api";
@@ -30,6 +31,9 @@ function UploadForm() {
   const [thumbnailError, setThumbnailError] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const location = useLocation(); 
+  const backgroundLocation = location.state?.backgroundLocation;
 
   /**
    * Handle attaching a video file.
@@ -116,10 +120,21 @@ function UploadForm() {
     uploadVideo(title, description, videoFile, thumbnailFile, user?.uid, token);
   }
 
+  function handleClose() {
+    setDialogOpen(false)
+
+    if(backgroundLocation) {
+      navigate(-1)
+    }
+    else {
+      navigate("/home")
+    }
+  }
+
   return (
     <Dialog
       open={dialogOpen}
-      onClose={() => setDialogOpen(false)}
+      onClose={handleClose}
       slotProps={{
         paper: {
           component: "form",

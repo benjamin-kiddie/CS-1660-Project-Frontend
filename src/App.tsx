@@ -5,14 +5,17 @@ import {
   Route,
   BrowserRouter as Router,
   Routes,
+  useLocation
 } from "react-router-dom";
 import Home from "./components/Home";
 import Layout from "./components/Layout";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
+import UploadForm from "./components/Profile/UploadForm";
 import { UserProvider } from "./components/UserProvider";
 
 function App() {
+
   const theme = createTheme({
     typography: {
       fontFamily: "Roboto, sans-serif",
@@ -46,6 +49,14 @@ function App() {
               element={
                 <Layout>
                   <Profile />
+                </Layout>
+              }
+            />
+            <Route
+              path="/upload"
+              element={
+                <Layout>
+                  <UploadForm />
                 </Layout>
               }
             />

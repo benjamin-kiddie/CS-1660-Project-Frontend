@@ -3,14 +3,19 @@ const styles = {
         width: "100vw"
     },
     bannerContainer: {
-        padding: "rem",
+        padding: "1rem",
         position: "fixed",
         margin: "0",
         display: "flex",
+        flexDirection: "row",
         width: "100vw",
         justifyContent: "left",
-        alignItems: "flex-end",
-        backgroundColor: "#F099F9",
+        alignItems: "center",
+        backgroundColor: "#FFFFFF",
+    },
+    logoAndNameContainer: {
+        display: "flex",
+        alightItems: "flex-end"
     },
     avatar: {
         padding: "1rem",
@@ -29,7 +34,6 @@ const styles = {
     uploadButton: {
         padding: "1rem",
         color: "#000000",
-        display: "absolute",
         alignItems: "flex-end",
         justifyContent: "right",
         height: "100%"
