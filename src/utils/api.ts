@@ -79,6 +79,46 @@ export async function getVideoOptions(
 }
 
 /**
+ * Search for video options based on a query.
+ * @param {string} query Search query.
+ * @param {number} page Page number for pagination.
+ * @param {number} limit Number of video options to fetch.
+ * @param {string} token JWT for authorization.
+ * @returns {Promise<VideoOption[], boolean>} Array of video options and whether or not more can be fetched.
+ */
+export async function searchVideoOptions(
+  query: string,
+  page?: number,
+  limit?: number,
+  token?: string
+): Promise<{ videoOptions: VideoOption[]; hasMore: boolean }> {
+  try {
+    const queryParams = new URLSearchParams();
+    queryParams.append("query", query);
+    if (page !== undefined) queryParams.append("page", page.toString());
+    if (limit !== undefined) queryParams.append("limit", limit.toString());
+
+    const response = await fetch(
+      `${apiUrl}/video/search?${queryParams.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error);
+    }
+    return data;
+  } catch (error) {
+    console.error("Error searching video options:", error);
+    return { videoOptions: [], hasMore: true };
+  }
+}
+
+/**
  * Fetch video details from the API.
  * @param {string} videoId ID of the video.
  * @param {string} token JWT for authorization.
@@ -234,7 +274,11 @@ export async function deleteComment(
  * @param {'like' | 'dislike'} type Type of reaction to toggle.
  * @param {string} token JWT for authorization.
  */
-export async function toggleReaction(videoId: string, type: 'like' | 'dislike', token?: string) {
+export async function toggleReaction(
+  videoId: string,
+  type: "like" | "dislike",
+  token?: string
+) {
   try {
     const response = await fetch(`${apiUrl}/video/${videoId}/${type}`, {
       method: "POST",
