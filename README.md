@@ -1,54 +1,60 @@
-# React + TypeScript + Vite
+# CS-1660 Project Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository contains the frontend for the Scufftube Video Platform.
 
-Currently, two official plugins are available:
+Scufftube is a video platform designed to allow users to view and interact with video content created by other users, as well as upload their own content.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Below, you will find details about setting up the project for local development, technical details, and an architecture diagram for the project as a whole.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Table of Contents
+- [Architecture](#architecture)
+- [Technical Details](#technical-details)
+- [Setup for Local Development](#setup-for-local-development)
+- [Project Structure](#project-structure)
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Architecture
+![Architecture diagram](architecture_diagram.svg)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## Technical Details
+This project uses the [React](https://reactjs.org) framework and is built using the [Vite](https://vitejs.dev).
+
+This project makes liberal use of [MUI components](https://mui.com) for consistent, minimalist presentation.
+
+This project also uses the [Firebase SDK](https://firebase.google.com/) for authentication via Google.
+
+---
+
+## Setup for Local Development
+Follow these steps to set up the project for local development:
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/benjamin-kiddie/CS-1660-Project-Frontend.git
+   cd CS-1660-Project-Frontend
+   ```  
+
+2. **Install Dependencies**:
+  Ensure you have [Node.js](https://nodejs.org) installed. Then run:
+    ```bash
+    npm install
+    ```
+
+3. **Run Backend API**:
+  Ensure the [backend API](https://github.com/benjamin-kiddie/CS-1660-Project-Backend) is running locally.
+
+4. **Run the Development Server**:
+  Start the development server using npm:
+    ```bash
+    npm run dev
+    ```
+
+5. **Access the Application**:
+  Open your browser and navigate to `http://localhost:5173`.
+
+---
