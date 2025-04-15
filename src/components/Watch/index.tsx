@@ -1,3 +1,4 @@
+import { ThumbUp, ThumbDown } from "@mui/icons-material";
 import {
   Avatar,
   Box,
@@ -8,7 +9,6 @@ import {
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import { ThumbUp, ThumbDown } from "@mui/icons-material"
 import { useCallback, useEffect, useState } from "react";
 import ReactPlayer from "react-player";
 import { useParams } from "react-router-dom";
@@ -16,7 +16,11 @@ import CommentSection from "./CommentSection";
 import RecommendedFeed from "./RecommendedFeed";
 import styles from "./styles";
 import { useUser } from "../../hooks/useUser";
-import { getVideoDetails, incrementViewCount, toggleReaction } from "../../utils/api";
+import {
+  getVideoDetails,
+  incrementViewCount,
+  toggleReaction,
+} from "../../utils/api";
 import { timeSinceUpload } from "../../utils/helpers";
 import { VideoDetails } from "../../utils/types";
 
@@ -72,31 +76,31 @@ function Watch() {
    */
   async function handleLikeDislike(type: "like" | "dislike") {
     if (!videoId || !user || !videoDetails) return;
-    
+
     const token = await user.getIdToken();
     const status = videoDetails.userLikeStatus;
-  
-    setVideoDetails(prev => {
+
+    setVideoDetails((prev) => {
       if (!prev) return prev;
-      
-      const newVideoDetails = {...prev};
-      
+
+      const newVideoDetails = { ...prev };
+
       if (status === type) {
         newVideoDetails.userLikeStatus = null;
-        newVideoDetails[type === 'like' ? 'likes' : 'dislikes'] -= 1;
+        newVideoDetails[type === "like" ? "likes" : "dislikes"] -= 1;
       } else {
         if (status) {
-          newVideoDetails[status === 'like' ? 'likes' : 'dislikes'] -= 1;
+          newVideoDetails[status === "like" ? "likes" : "dislikes"] -= 1;
         }
         newVideoDetails.userLikeStatus = type;
-        newVideoDetails[type === 'like' ? 'likes' : 'dislikes'] += 1;
+        newVideoDetails[type === "like" ? "likes" : "dislikes"] += 1;
       }
-      
+
       return newVideoDetails;
     });
-  
+
     await toggleReaction(videoId, type, token);
-  } 
+  }
 
   return (
     <Box sx={styles.content}>
@@ -177,7 +181,8 @@ function Watch() {
                     onClick={() => handleLikeDislike("like")}
                     sx={[
                       styles.likeButton,
-                      videoDetails.userLikeStatus === "like" && styles.likeButtonActive,
+                      videoDetails.userLikeStatus === "like" &&
+                        styles.likeButtonActive,
                     ]}
                   >
                     <ThumbUp />
@@ -187,7 +192,8 @@ function Watch() {
                     onClick={() => handleLikeDislike("dislike")}
                     sx={[
                       styles.dislikeButton,
-                      videoDetails.userLikeStatus === "dislike" && styles.dislikeButtonActive,
+                      videoDetails.userLikeStatus === "dislike" &&
+                        styles.dislikeButtonActive,
                     ]}
                   >
                     <ThumbDown />

@@ -1,15 +1,22 @@
-import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { ReactNode, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useUser();
+  const navigate = useNavigate();
 
-  if (!loading && !user) {
-    return <Navigate to="/login" replace />;
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/login", { replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return null;
   }
 
-  return children;
+  return user ? children : null;
 }
 
 export default ProtectedRoute;

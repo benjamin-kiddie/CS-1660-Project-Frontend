@@ -19,29 +19,41 @@ import {
   Typography,
 } from "@mui/material";
 import { signOut } from "firebase/auth";
-import React, { ReactNode, useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import styles from "./styles";
 import logo from "../../assets/videoplayer.svg";
 import { useUser } from "../../hooks/useUser";
 import { auth } from "../../utils/firebase";
 
-type LayoutProps = {
-  children?: ReactNode;
-};
-
-// TODO: Implement search
-
 /**
  * Layout for main pages, including Home, Profile, and Video.
  */
-function Layout({ children }: LayoutProps) {
+function Layout() {
+  const navigate = useNavigate();
   const { user, setUser } = useUser();
   const [search, setSearch] = useState<string>("");
   const [searchBarWidth, setTextFieldWidth] = useState<number>(0);
   const searchBarRef = useRef<HTMLInputElement>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
+
+  useEffect(() => {
+    if (searchBarRef.current) {
+      setTextFieldWidth(searchBarRef.current.offsetWidth);
+    }
+
+    const handleResize = () => {
+      if (searchBarRef.current) {
+        setTextFieldWidth(searchBarRef.current.offsetWidth);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   /**
    * Open the logout menu.
@@ -72,25 +84,20 @@ function Layout({ children }: LayoutProps) {
   }
 
   /**
-   * Manually push the searchbar into the center of the app bar.
-   * Update the requisite margin whenever the window resizes.
+   * Handle pressing "Enter" in the search bar.
+   * Navigate to /search?query=<contents of the searchbar>.
    */
-  useEffect(() => {
-    if (searchBarRef.current) {
-      setTextFieldWidth(searchBarRef.current.offsetWidth);
-    }
-
-    const handleResize = () => {
+  function handleSearchKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.key === "Enter" && search.trim() !== "") {
+      navigate(`/search?query=${encodeURIComponent(search.trim())}`);
       if (searchBarRef.current) {
-        setTextFieldWidth(searchBarRef.current.offsetWidth);
+        const inputElement = searchBarRef.current.querySelector("input");
+        if (inputElement) {
+          inputElement.blur();
+        }
       }
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
+    }
+  }
 
   return (
     <Container maxWidth={false} disableGutters>
@@ -140,6 +147,7 @@ function Layout({ children }: LayoutProps) {
               sx={styles.searchBar}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
             />
           </Box>
           {user && (
@@ -184,7 +192,7 @@ function Layout({ children }: LayoutProps) {
         </Toolbar>
       </AppBar>
       <Container maxWidth={false} sx={styles.mainContent}>
-        {children && children}
+        <Outlet />
       </Container>
     </Container>
   );

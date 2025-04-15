@@ -11,6 +11,7 @@ import Layout from "./components/Layout";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Search from "./components/Search";
 import { UserProvider } from "./components/UserProvider";
 import Watch from "./components/Watch";
 
@@ -34,37 +35,20 @@ function App() {
       <Router>
         <UserProvider>
           <Routes>
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="home" element={<Home />} />
+              <Route path="search" element={<Search />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="watch/:videoId" element={<Watch />} />
+            </Route>
             <Route path="/login" element={<Login />} />
-            <Route
-              path="/home"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Home />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Profile />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/watch/:videoId"
-              element={
-                <ProtectedRoute>
-                  <Layout>
-                    <Watch />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
             <Route path="*" element={<Navigate to={"/home"} />} />
           </Routes>
         </UserProvider>
