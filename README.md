@@ -9,28 +9,36 @@ Below, you will find details about setting up the project for local development,
 ---
 
 ## Table of Contents
+
 - [Architecture](#architecture)
 - [Technical Details](#technical-details)
 - [Setup for Local Development](#setup-for-local-development)
-- [Project Structure](#project-structure)
 
 ---
 
 ## Architecture
+
 ![Architecture diagram](architecture_diagram.svg)
 
 ---
 
 ## Technical Details
-This project uses the [React](https://reactjs.org) framework and is built using the [Vite](https://vitejs.dev).
 
-This project makes liberal use of [MUI components](https://mui.com) for consistent, minimalist presentation.
+This project is built using the [React](https://reactjs.org) framework for creating a dynamic and responsive user interface. Below are the key technologies and services used in this frontend:
 
-This project also uses the [Firebase SDK](https://firebase.google.com/) for authentication via Google.
+- **React**: Provides the core framework for building reusable UI components and managing application state.
+- **Vite**: A fast build tool and development server used for bundling and serving the application during development and production.
+- **MUI (Material-UI)**: A React component library used for implementing a consistent and minimalist design system.
+- **Firebase SDK**: Used for user authentication via Google, enabling secure login and session management.
+- **React Router**: Handles client-side routing, enabling navigation between different pages of the application without reloading.
+- **React Player**: A library for embedding and controlling video playback within the application.
+
+This frontend is designed to integrate seamlessly with the backend API, providing features such as video uploads, playback, comments, likes, and user interactions.
 
 ---
 
 ## Setup for Local Development
+
 Follow these steps to set up the project for local development:
 
 1. **Clone the Repository**:
