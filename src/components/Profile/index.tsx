@@ -9,9 +9,10 @@ import {
   MenuItem,
   Typography,
 } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./styles";
 import UploadForm from "./UploadForm";
+import { useSnackbar } from "../../hooks/useSnackbar";
 import { useUser } from "../../hooks/useUser";
 import { deleteVideo, getUserVideoOptions } from "../../utils/api";
 import { VideoOption } from "../../utils/types";
@@ -24,6 +25,7 @@ import VideoOptionTileSkeleton from "../VideoOptionTileSkeleton";
  */
 function Profile() {
   const { user } = useUser();
+  const { showSnackbar } = useSnackbar();
   const [loading, setLoading] = useState<boolean>(false);
   const [videoList, setVideoList] = useState<VideoOption[]>([]);
   const [hasMoreVideos, setHasMoreVideos] = useState<boolean>(true);
@@ -33,23 +35,36 @@ function Profile() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchVideoOptions = async () => {
-      if (!user || loading) return;
-      setLoading(true);
-      const token = await user?.getIdToken();
-      const { videoOptions: newVideoOptions, hasMore } =
-        await getUserVideoOptions(user.uid, videoPageRef.current, 1, token);
-      if (newVideoOptions.length > 0) {
-        setVideoList((prevVideoList) => [...prevVideoList, ...newVideoOptions]);
-        videoPageRef.current += 1;
-      }
-      if (!hasMore) {
-        setHasMoreVideos(false);
-      }
-      setLoading(false);
-    };
+  /**
+   * Fetch videos for the profile page.
+   */
+  const fetchVideoOptions = useCallback(async () => {
+    if (!user || loading) return;
+    setLoading(true);
+    const token = await user?.getIdToken();
+    const { videoOptions: newVideoOptions, hasMore } =
+      await getUserVideoOptions(user.uid, videoPageRef.current, 1, token);
+    if (newVideoOptions.length > 0) {
+      setVideoList((prevVideoList) => [...prevVideoList, ...newVideoOptions]);
+      videoPageRef.current += 1;
+    }
+    if (!hasMore) {
+      setHasMoreVideos(false);
+    }
+    setLoading(false);
+  }, [user, loading]);
 
+  /**
+   * Refetch videos by resetting the video list and fetching again.
+   */
+  function refetchVideos() {
+    setVideoList([]);
+    setHasMoreVideos(true);
+    videoPageRef.current = 1;
+    fetchVideoOptions();
+  }
+
+  useEffect(() => {
     if (hasMoreVideos) {
       const observer = new IntersectionObserver(
         (entries) => {
@@ -74,7 +89,7 @@ function Profile() {
         observer.disconnect();
       };
     }
-  }, [hasMoreVideos, loading, user]);
+  }, [fetchVideoOptions, hasMoreVideos, loading, user]);
 
   /**
    * Handle deleting a video.
@@ -82,13 +97,16 @@ function Profile() {
    */
   async function handleDeleteVideo() {
     if (!selectedVideoId || !user) return;
+
     const token = await user.getIdToken();
     const success = await deleteVideo(selectedVideoId, token);
     if (success) {
       setVideoList((prevVideos) =>
         prevVideos.filter((video) => video.id !== selectedVideoId)
       );
+      showSnackbar("Video deleted", "success");
     }
+
     handleMenuClose();
   }
 
@@ -104,7 +122,7 @@ function Profile() {
   }
 
   /**
-   * Close the dropdown menu for a comment.
+   * Close the dropdown menu for a video.
    */
   function handleMenuClose() {
     setAnchorEl(null);
@@ -124,7 +142,7 @@ function Profile() {
             <Typography variant="h3" fontWeight="bold">
               {user.displayName}
             </Typography>
-            <UploadForm />
+            <UploadForm refetchVideos={refetchVideos} />
           </Box>
         </Box>
         <Box>

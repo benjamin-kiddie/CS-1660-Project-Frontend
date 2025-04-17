@@ -8,6 +8,7 @@ import {
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -19,11 +20,17 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import styles from "./styles";
+import { useSnackbar } from "../../../hooks/useSnackbar";
 import { useUser } from "../../../hooks/useUser";
 import { uploadVideo } from "../../../utils/api";
 
-function UploadForm() {
+type UploadFormProps = {
+  refetchVideos: () => void;
+};
+
+function UploadForm({ refetchVideos }: UploadFormProps) {
   const { user } = useUser();
+  const { showSnackbar } = useSnackbar();
   const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -32,6 +39,7 @@ function UploadForm() {
   const [thumbnailError, setThumbnailError] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   /**
    * Handle attaching a video file.
@@ -114,9 +122,25 @@ function UploadForm() {
    */
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const token = await user?.getIdToken();
-    uploadVideo(title, description, videoFile, thumbnailFile, token);
-    handleClose();
+    if (!user) return;
+
+    setLoading(true);
+    const token = await user.getIdToken();
+    const newVideoId = await uploadVideo(
+      title,
+      description,
+      videoFile,
+      thumbnailFile,
+      token
+    );
+    setLoading(false);
+    if (newVideoId) {
+      showSnackbar("Uploaded video", "success");
+      refetchVideos();
+      handleClose();
+    } else {
+      showSnackbar("Something went wrong", "error");
+    }
   }
 
   /**
@@ -294,9 +318,9 @@ function UploadForm() {
             <Button
               type="submit"
               variant="contained"
-              disabled={!title || !videoFile}
+              disabled={!title || !videoFile || loading}
             >
-              Upload
+              {loading ? <CircularProgress size={20} /> : "Upload"}
             </Button>
           </DialogActions>
         </DialogContent>

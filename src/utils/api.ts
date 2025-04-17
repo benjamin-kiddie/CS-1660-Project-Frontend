@@ -10,6 +10,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
  * @param {File | null} thumbnailFile The thumbnail file to upload (optional).
  * @param {string} uploader The uploader's UID.
  * @param {string} token JWT for authorization.
+ * @returns {Promise<string | null>} The ID of the uploaded video or null if the upload failed.
  */
 export async function uploadVideo(
   title: string,
@@ -17,7 +18,7 @@ export async function uploadVideo(
   videoFile: File | null,
   thumbnailFile: File | null,
   token?: string
-) {
+): Promise<string | null> {
   const formData = new FormData();
   formData.append("title", title);
   formData.append("description", description);
@@ -36,8 +37,10 @@ export async function uploadVideo(
     if (!response.ok) {
       throw new Error(data.error);
     }
+    return data;
   } catch (error) {
     console.error("Error uploading video:", error);
+    return null;
   }
 }
 

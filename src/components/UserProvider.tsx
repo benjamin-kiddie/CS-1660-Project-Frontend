@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { UserContext } from "../hooks/useUser";
 import { auth } from "../utils/firebase";
 
-export function UserProvider({ children }: { children: ReactNode }) {
+function UserProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -24,3 +24,5 @@ export function UserProvider({ children }: { children: ReactNode }) {
     </UserContext.Provider>
   );
 }
+
+export default UserProvider;
