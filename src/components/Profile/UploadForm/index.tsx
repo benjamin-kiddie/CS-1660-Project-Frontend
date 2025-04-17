@@ -115,7 +115,7 @@ function UploadForm() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     const token = await user?.getIdToken();
-    uploadVideo(title, description, videoFile, thumbnailFile, user?.uid, token);
+    uploadVideo(title, description, videoFile, thumbnailFile, token);
     handleClose();
   }
 

@@ -39,6 +39,7 @@ const styles = {
     lineHeight: 1.2,
     marginBottom: "5px",
   },
+  menuButton: { padding: "0 0 0 5px" },
 };
 
 export default styles;

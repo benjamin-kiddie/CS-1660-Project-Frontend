@@ -67,6 +67,7 @@ const styles = {
     alignItems: "center",
   },
   expand: {
+    alignSelf: "flex-end",
     fontWeight: "bold",
     cursor: "pointer",
     marginLeft: "10px",

@@ -1,9 +1,19 @@
-import { Avatar, Box, Grid2 as Grid, Typography } from "@mui/material";
+import { Delete as DeleteIcon } from "@mui/icons-material";
+import {
+  Avatar,
+  Box,
+  Grid2 as Grid,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import styles from "./styles";
 import UploadForm from "./UploadForm";
 import { useUser } from "../../hooks/useUser";
-import { getUserVideoOptions } from "../../utils/api";
+import { deleteVideo, getUserVideoOptions } from "../../utils/api";
 import { VideoOption } from "../../utils/types";
 import VideoOptionTile from "../VideoOptionTile/index";
 import VideoOptionTileSkeleton from "../VideoOptionTileSkeleton";
@@ -20,12 +30,13 @@ function Profile() {
   const videoPageRef = useRef<number>(1);
   const observerRef = useRef<HTMLDivElement | null>(null);
   const observerInstanceRef = useRef<IntersectionObserver | null>(null);
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchVideoOptions = async () => {
       if (!user || loading) return;
       setLoading(true);
-      console.log("looking up");
       const token = await user?.getIdToken();
       const { videoOptions: newVideoOptions, hasMore } =
         await getUserVideoOptions(user.uid, videoPageRef.current, 1, token);
@@ -65,6 +76,41 @@ function Profile() {
     }
   }, [hasMoreVideos, loading, user]);
 
+  /**
+   * Handle deleting a video.
+   * Delete the video from the video list.
+   */
+  async function handleDeleteVideo() {
+    if (!selectedVideoId || !user) return;
+    const token = await user.getIdToken();
+    const success = await deleteVideo(selectedVideoId, token);
+    if (success) {
+      setVideoList((prevVideos) =>
+        prevVideos.filter((video) => video.id !== selectedVideoId)
+      );
+    }
+    handleMenuClose();
+  }
+
+  /**
+   * Open the dropdown menu for a video.
+   */
+  function handleMenuOpen(
+    event: React.MouseEvent<HTMLElement>,
+    commentId: string
+  ) {
+    setAnchorEl(event.currentTarget);
+    setSelectedVideoId(commentId);
+  }
+
+  /**
+   * Close the dropdown menu for a comment.
+   */
+  function handleMenuClose() {
+    setAnchorEl(null);
+    setSelectedVideoId(null);
+  }
+
   return (
     user && (
       <Box sx={styles.page}>
@@ -96,7 +142,11 @@ function Profile() {
                 size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
                 key={video.id}
               >
-                <VideoOptionTile video={video} />
+                <VideoOptionTile
+                  video={video}
+                  showMenu={true}
+                  openMenu={handleMenuOpen}
+                />
               </Grid>
             ))}
             {loading &&
@@ -109,6 +159,18 @@ function Profile() {
                 </Grid>
               ))}
           </Grid>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+          >
+            <MenuItem onClick={handleDeleteVideo}>
+              <ListItemIcon>
+                <DeleteIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Delete" />
+            </MenuItem>
+          </Menu>
         </Box>
         {!loading && hasMoreVideos && (
           <div ref={observerRef} style={styles.refetchLayer} />
