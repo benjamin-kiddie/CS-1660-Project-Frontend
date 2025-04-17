@@ -10,33 +10,66 @@ const apiUrl = import.meta.env.VITE_API_URL;
  * @param {File | null} thumbnailFile The thumbnail file to upload (optional).
  * @param {string} uploader The uploader's UID.
  * @param {string} token JWT for authorization.
+ * @returns {Promise<string | null>} The ID of the uploaded video or null if the upload failed.
  */
-export function uploadVideo(
+export async function uploadVideo(
   title: string,
   description: string,
   videoFile: File | null,
   thumbnailFile: File | null,
-  uploader?: string,
   token?: string
-) {
+): Promise<string | null> {
   const formData = new FormData();
   formData.append("title", title);
   formData.append("description", description);
-  if (uploader) formData.append("uploader", uploader);
   if (videoFile) formData.append("videoFile", videoFile);
   if (thumbnailFile) formData.append("thumbnailFile", thumbnailFile);
 
-  fetch(`${apiUrl}/video`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  })
-    .then((response) => response.json())
-    .catch((error) => {
-      console.error("Error uploading video:", error);
+  try {
+    const response = await fetch(`${apiUrl}/video`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
     });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error);
+    }
+    return data;
+  } catch (error) {
+    console.error("Error uploading video:", error);
+    return null;
+  }
+}
+
+/**
+ * Delete a video from the API.
+ * @param {string} videoId ID of the video to delete.
+ * @param {string} token JWT for authorization.
+ * @returns {Promise<boolean>} True if the video was deleted successfully, false otherwise.
+ */
+export async function deleteVideo(
+  videoId: string,
+  token?: string
+): Promise<boolean> {
+  try {
+    const response = await fetch(`${apiUrl}/video/${videoId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error);
+    }
+    return true;
+  } catch (error) {
+    console.error("Error deleting video:", error);
+    return false;
+  }
 }
 
 /**
@@ -62,6 +95,40 @@ export async function getVideoOptions(
     if (excludeId) queryParams.append("excludeId", excludeId);
 
     const response = await fetch(`${apiUrl}/video?${queryParams.toString()}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error);
+    }
+    return data;
+  } catch (error) {
+    console.error("Error fetching video options:", error);
+    return { videoOptions: [], hasMore: true };
+  }
+}
+
+/**
+ * Fetch user's uploaded video options from the API.
+ * @param {string} userId ID of the user.
+ * @param {string} token JWT for authorization.
+ * @returns {Promise<VideoOption[], boolean>} Array of video options.
+ */
+export async function getUserVideoOptions(
+  userId: string,
+  page?: number,
+  limit?: number,
+  token?: string
+): Promise<{ videoOptions: VideoOption[]; hasMore: boolean }> {
+  try {
+    const queryParams = new URLSearchParams();
+    if (page !== undefined) queryParams.append("page", page.toString());
+    if (limit !== undefined) queryParams.append("limit", limit.toString());
+
+    const response = await fetch(`${apiUrl}/video/user/${userId}`, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -271,7 +338,7 @@ export async function deleteComment(
 /**
  * Toggle the like/dislike reactino for a video.
  * @param {string} videoId ID of the video.
- * @param {'like' | 'dislike'} type Type of reaction to toggle.
+ * @param {"like" | "dislike"} type Type of reaction to toggle.
  * @param {string} token JWT for authorization.
  */
 export async function toggleReaction(

@@ -1,6 +1,8 @@
 import {
   Search as SearchIcon,
   Logout as LogoutIcon,
+  AccountCircle as ProfileIcon,
+  Home as HomeIcon,
   Menu as MenuIcon,
 } from "@mui/icons-material";
 import {
@@ -33,10 +35,15 @@ function Layout() {
   const navigate = useNavigate();
   const { user, setUser } = useUser();
   const [search, setSearch] = useState<string>("");
+  const [sideMenuAnchorEl, setSideMenuAnchorEl] = useState<HTMLElement | null>(
+    null
+  );
+  const [logoutMenuAnchorEl, setLogoutMenuAnchorEl] =
+    useState<HTMLElement | null>(null);
+  const sideMenuOpen = Boolean(sideMenuAnchorEl);
+  const logoutMenuOpen = Boolean(logoutMenuAnchorEl);
   const [searchBarWidth, setTextFieldWidth] = useState<number>(0);
   const searchBarRef = useRef<HTMLInputElement>(null);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const open = Boolean(anchorEl);
 
   useEffect(() => {
     if (searchBarRef.current) {
@@ -60,14 +67,29 @@ function Layout() {
    * @param {React.MouseEvent<HTMLElement>} event user click event.
    */
   function handleLogoutMenuOpen(event: React.MouseEvent<HTMLElement>) {
-    setAnchorEl(event.currentTarget);
+    setLogoutMenuAnchorEl(event.currentTarget);
+  }
+
+  /**
+   * Open the side menu.
+   * @param {React.MouseEvent<HTMLElement>} event user click event.
+   */
+  function handleSideMenuOpen(event: React.MouseEvent<HTMLElement>) {
+    setSideMenuAnchorEl(event.currentTarget);
   }
 
   /**
    * Close the logout menu.
    */
   function handleLogoutMenuClose() {
-    setAnchorEl(null);
+    setLogoutMenuAnchorEl(null);
+  }
+
+  /**
+   * Close the side menu.
+   */
+  function handleSideMenuClose() {
+    setSideMenuAnchorEl(null);
   }
 
   /**
@@ -81,6 +103,22 @@ function Layout() {
       .catch((error) => {
         console.error("Error signing out: ", error);
       });
+  }
+
+  /**
+   * Handle navigation to Home.
+   */
+  function handleNavigateHome() {
+    navigate("/home");
+    handleSideMenuClose();
+  }
+
+  /**
+   * Handle navigation to Profile.
+   */
+  function handleNavigateProfile() {
+    navigate("/profile");
+    handleSideMenuClose();
   }
 
   /**
@@ -113,14 +151,51 @@ function Layout() {
             }}
           >
             <IconButton
+              onClick={handleSideMenuOpen}
               size="large"
               edge="start"
               color="inherit"
               aria-label="open drawer"
+              aria-controls={sideMenuOpen ? "side-menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={sideMenuOpen ? "true" : undefined}
               sx={styles.drawerButton}
             >
               <MenuIcon />
             </IconButton>
+            <Menu
+              id="side-menu"
+              anchorEl={sideMenuAnchorEl}
+              open={sideMenuOpen}
+              onClose={handleSideMenuClose}
+              slotProps={{
+                paper: {
+                  elevation: 3,
+                  sx: styles.sideMenu,
+                },
+              }}
+              transformOrigin={{ horizontal: "right", vertical: "top" }}
+              anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+            >
+              <MenuItem
+                onClick={handleNavigateHome}
+                selected={location.pathname === "/home"}
+              >
+                <ListItemIcon>
+                  <HomeIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Home" />
+              </MenuItem>
+              <MenuItem
+                selected={location.pathname === "/profile"}
+                onClick={handleNavigateProfile}
+              >
+                <ListItemIcon>
+                  <ProfileIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Profile" />
+              </MenuItem>
+            </Menu>
             <Link to="/home" style={styles.logoAndTitle}>
               <img src={logo} style={styles.logo} />
               <Typography variant="h5" fontWeight={500}>
@@ -155,9 +230,9 @@ function Layout() {
               <IconButton
                 onClick={handleLogoutMenuOpen}
                 size="small"
-                aria-controls={open ? "avatar-menu" : undefined}
+                aria-controls={logoutMenuOpen ? "avatar-menu" : undefined}
                 aria-haspopup="true"
-                aria-expanded={open ? "true" : undefined}
+                aria-expanded={logoutMenuOpen ? "true" : undefined}
                 sx={styles.avatarContainer}
               >
                 <Avatar
@@ -167,8 +242,8 @@ function Layout() {
               </IconButton>
               <Menu
                 id="avatar-menu"
-                anchorEl={anchorEl}
-                open={open}
+                anchorEl={logoutMenuAnchorEl}
+                open={logoutMenuOpen}
                 onClose={handleLogoutMenuClose}
                 onClick={handleLogoutMenuClose}
                 slotProps={{

@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import styles from "./styles";
+import { useSnackbar } from "../../../hooks/useSnackbar";
 import { useUser } from "../../../hooks/useUser";
 import { deleteComment, getComments, postComment } from "../../../utils/api";
 import { timeSinceUpload } from "../../../utils/helpers";
@@ -30,6 +31,7 @@ type CommentSectionProps = {
 
 function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
   const { user } = useUser();
+  const { showSnackbar } = useSnackbar();
   const [comment, setComment] = useState<string>("");
   const [showCommentButtons, setShowCommentButtons] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -125,6 +127,9 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
     if (newComment) {
       setComments((prevComments) => [newComment, ...prevComments]);
       emptyCommentField();
+      showSnackbar("Comment added", "success");
+    } else {
+      showSnackbar("Something went wrong", "error");
     }
   }
 
@@ -163,6 +168,9 @@ function CommentSection({ numComments, currentVideoId }: CommentSectionProps) {
       setComments((prevComments) =>
         prevComments.filter((comment) => comment.id !== selectedCommentId)
       );
+      showSnackbar("Comment deleted", "success");
+    } else {
+      showSnackbar("Something went wrong", "error");
     }
     handleMenuClose();
   }

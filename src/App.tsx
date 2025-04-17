@@ -12,7 +12,8 @@ import Login from "./components/Login";
 import Profile from "./components/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Search from "./components/Search";
-import { UserProvider } from "./components/UserProvider";
+import SnackbarProvider from "./components/SnackbarProvider";
+import UserProvider from "./components/UserProvider";
 import Watch from "./components/Watch";
 
 function App() {
@@ -34,23 +35,24 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <UserProvider>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Layout />
-                </ProtectedRoute>
-              }
-            >
-              <Route path="home" element={<Home />} />
-              <Route path="search" element={<Search />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="watch/:videoId" element={<Watch />} />
-            </Route>
-            <Route path="/login" element={<Login />} />
-            <Route path="*" element={<Navigate to={"/home"} />} />
-          </Routes>
+          <SnackbarProvider>
+            <Routes>
+              <Route
+                element={
+                  <ProtectedRoute>
+                    <Layout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/home" element={<Home />} />
+                <Route path="/search" element={<Search />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/watch/:videoId" element={<Watch />} />
+              </Route>
+              <Route path="/login" element={<Login />} />
+              <Route path="*" element={<Navigate to={"/home"} />} />
+            </Routes>
+          </SnackbarProvider>
         </UserProvider>
       </Router>
     </ThemeProvider>

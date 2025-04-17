@@ -216,23 +216,27 @@ function Watch() {
                     )
                   : timeSinceUpload(videoDetails.uploadTimestamp)}
               </Typography>
-              <Box sx={styles.descriptionContainer}>
-                <Typography>
-                  {descriptionisExpanded
-                    ? videoDetails.description
-                    : videoDetails.description.length > 200
-                    ? `${videoDetails.description.substring(0, 200)}...`
-                    : videoDetails.description}
-                </Typography>
+              <Typography>
+                {descriptionisExpanded
+                  ? videoDetails.description
+                  : videoDetails.description.length > 200
+                  ? `${videoDetails.description.substring(0, 200)}...`
+                  : videoDetails.description}
                 <Typography
                   onClick={() =>
                     setDescriptionIsExpanded(!descriptionisExpanded)
                   }
-                  sx={styles.expand}
+                  component="span"
+                  sx={{
+                    ...styles.expandCollapse,
+                    ...(descriptionisExpanded
+                      ? styles.collapseBlock
+                      : styles.expandInline),
+                  }}
                 >
                   {descriptionisExpanded ? "Collapse" : "Expand"}
                 </Typography>
-              </Box>
+              </Typography>
             </Box>
             {!isBelowMd && (
               <CommentSection

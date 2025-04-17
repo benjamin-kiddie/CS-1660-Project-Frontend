@@ -1,4 +1,5 @@
 import {
+  Add as AddIcon,
   CloudUpload as CloudUploadIcon,
   Videocam as VideocamIcon,
   Image as ImageIcon,
@@ -7,6 +8,7 @@ import {
 import {
   Box,
   Button,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -18,12 +20,18 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import styles from "./styles";
+import { useSnackbar } from "../../../hooks/useSnackbar";
 import { useUser } from "../../../hooks/useUser";
 import { uploadVideo } from "../../../utils/api";
 
-function UploadForm() {
+type UploadFormProps = {
+  refetchVideos: () => void;
+};
+
+function UploadForm({ refetchVideos }: UploadFormProps) {
   const { user } = useUser();
-  const [dialogOpen, setDialogOpen] = useState<boolean>(true);
+  const { showSnackbar } = useSnackbar();
+  const [dialogOpen, setDialogOpen] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -31,6 +39,7 @@ function UploadForm() {
   const [thumbnailError, setThumbnailError] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   /**
    * Handle attaching a video file.
@@ -113,160 +122,210 @@ function UploadForm() {
    */
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    const token = await user?.getIdToken();
-    uploadVideo(title, description, videoFile, thumbnailFile, user?.uid, token);
+    if (!user) return;
+
+    setLoading(true);
+    const token = await user.getIdToken();
+    const newVideoId = await uploadVideo(
+      title,
+      description,
+      videoFile,
+      thumbnailFile,
+      token
+    );
+    setLoading(false);
+    if (newVideoId) {
+      showSnackbar("Uploaded video", "success");
+      refetchVideos();
+      handleClose();
+    } else {
+      showSnackbar("Something went wrong", "error");
+    }
+  }
+
+  /**
+   * Close the modal and clear form inputs.
+   */
+  function handleClose() {
+    setTitle("");
+    setDescription("");
+    setVideoFile(null);
+    setThumbnailFile(null);
+    setThumbnailError(null);
+    if (videoPreview) {
+      URL.revokeObjectURL(videoPreview);
+      setVideoPreview(null);
+    }
+    if (thumbnailPreview) {
+      URL.revokeObjectURL(thumbnailPreview);
+      setThumbnailPreview(null);
+    }
+    setDialogOpen(false);
   }
 
   return (
-    <Dialog
-      open={dialogOpen}
-      onClose={() => setDialogOpen(false)}
-      slotProps={{
-        paper: {
-          component: "form",
-          onSubmit: handleSubmit,
-        },
-      }}
-    >
-      <DialogTitle>Upload Video</DialogTitle>
-      <DialogContent>
-        <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          fullWidth
-          id="title"
-          label="Title"
-          name="title"
-          autoFocus
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <TextField
-          margin="normal"
-          fullWidth
-          id="description"
-          label="Description"
-          name="description"
-          multiline
-          rows={4}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <Box sx={styles.uploadContainer}>
-          <Typography variant="subtitle1" gutterBottom>
-            <VideocamIcon sx={styles.icon} />
-            Video Upload
-          </Typography>
-          {videoFile ? (
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              sx={styles.file}
-            >
-              <Box sx={styles.previewContainer}>
-                <Typography variant="body2" noWrap>
-                  {videoFile.name} (
-                  {(videoFile.size / (1024 * 1024)).toFixed(2)} MB)
-                </Typography>
-                {videoPreview && (
-                  <Box sx={styles.preview}>
-                    <video
-                      controls
-                      width="100%"
-                      height="auto"
-                      src={videoPreview}
-                    />
-                  </Box>
-                )}
-              </Box>
-              <IconButton onClick={clearVideoFile} size="small">
-                <ClearIcon />
-              </IconButton>
-            </Stack>
-          ) : (
-            <Button
-              component="label"
-              variant="outlined"
-              startIcon={<CloudUploadIcon />}
-              sx={styles.uploadButton}
-            >
-              Select Video
-              <input
-                type="file"
-                hidden
-                accept="video/*"
-                onChange={handleVideoChange}
-              />
-            </Button>
-          )}
-        </Box>
-        <Box sx={styles.uploadContainer}>
-          <Typography variant="subtitle1" gutterBottom>
-            <ImageIcon sx={styles.icon} />
-            Thumbnail Upload
-          </Typography>
-          {thumbnailError && (
-            <Typography color="error" variant="body2">
-              {thumbnailError}
+    <>
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<AddIcon />}
+        onClick={() => setDialogOpen(true)}
+        sx={styles.dialogButton}
+      >
+        Upload Video
+      </Button>
+      <Dialog
+        open={dialogOpen}
+        onClose={handleClose}
+        slotProps={{
+          paper: {
+            component: "form",
+            onSubmit: handleSubmit,
+          },
+        }}
+      >
+        <DialogTitle>Upload Video</DialogTitle>
+        <DialogContent>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="title"
+            label="Title"
+            name="title"
+            autoFocus
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <TextField
+            margin="normal"
+            fullWidth
+            id="description"
+            label="Description"
+            name="description"
+            multiline
+            rows={4}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+          <Box sx={styles.uploadContainer}>
+            <Typography variant="subtitle1" gutterBottom>
+              <VideocamIcon sx={styles.icon} />
+              Video Upload
             </Typography>
-          )}
-          {thumbnailFile ? (
-            <Stack
-              direction="row"
-              spacing={2}
-              alignItems="center"
-              sx={styles.file}
-            >
-              <Box sx={styles.previewContainer}>
-                <Typography variant="body2" noWrap>
-                  {thumbnailFile.name} (
-                  {(thumbnailFile.size / (1024 * 1024)).toFixed(2)} MB)
-                </Typography>
-                {thumbnailPreview && (
-                  <Box sx={styles.preview}>
-                    <img
-                      src={thumbnailPreview}
-                      alt="Thumbnail preview"
-                      style={{ maxWidth: "100%", maxHeight: "200px" }}
-                    />
-                  </Box>
-                )}
-              </Box>
-              <IconButton onClick={clearThumbnailFile} size="small">
-                <ClearIcon />
-              </IconButton>
-            </Stack>
-          ) : (
-            <Button
-              component="label"
-              variant="outlined"
-              startIcon={<CloudUploadIcon />}
-              sx={styles.uploadButton}
-            >
-              Select Thumbnail
-              <input
-                type="file"
-                hidden
-                accept="image/*"
-                onChange={handleThumbnailChange}
-              />
+            {videoFile ? (
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                sx={styles.file}
+              >
+                <Box sx={styles.previewContainer}>
+                  <Typography variant="body2" noWrap>
+                    {videoFile.name} (
+                    {(videoFile.size / (1024 * 1024)).toFixed(2)} MB)
+                  </Typography>
+                  {videoPreview && (
+                    <Box sx={styles.preview}>
+                      <video
+                        controls
+                        width="100%"
+                        height="auto"
+                        src={videoPreview}
+                      />
+                    </Box>
+                  )}
+                </Box>
+                <IconButton onClick={clearVideoFile} size="small">
+                  <ClearIcon />
+                </IconButton>
+              </Stack>
+            ) : (
+              <Button
+                component="label"
+                variant="outlined"
+                startIcon={<CloudUploadIcon />}
+                sx={styles.uploadButton}
+              >
+                Select Video
+                <input
+                  type="file"
+                  hidden
+                  accept="video/*"
+                  onChange={handleVideoChange}
+                />
+              </Button>
+            )}
+          </Box>
+          <Box sx={styles.uploadContainer}>
+            <Typography variant="subtitle1" gutterBottom>
+              <ImageIcon sx={styles.icon} />
+              Thumbnail Upload
+            </Typography>
+            {thumbnailError && (
+              <Typography color="error" variant="body2">
+                {thumbnailError}
+              </Typography>
+            )}
+            {thumbnailFile ? (
+              <Stack
+                direction="row"
+                spacing={2}
+                alignItems="center"
+                sx={styles.file}
+              >
+                <Box sx={styles.previewContainer}>
+                  <Typography variant="body2" noWrap>
+                    {thumbnailFile.name} (
+                    {(thumbnailFile.size / (1024 * 1024)).toFixed(2)} MB)
+                  </Typography>
+                  {thumbnailPreview && (
+                    <Box sx={styles.preview}>
+                      <img
+                        src={thumbnailPreview}
+                        alt="Thumbnail preview"
+                        style={{ maxWidth: "100%", maxHeight: "200px" }}
+                      />
+                    </Box>
+                  )}
+                </Box>
+                <IconButton onClick={clearThumbnailFile} size="small">
+                  <ClearIcon />
+                </IconButton>
+              </Stack>
+            ) : (
+              <Button
+                component="label"
+                variant="outlined"
+                startIcon={<CloudUploadIcon />}
+                sx={styles.uploadButton}
+              >
+                Select Thumbnail
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={handleThumbnailChange}
+                />
+              </Button>
+            )}
+          </Box>
+          <DialogActions>
+            <Button variant="outlined" onClick={handleClose}>
+              Cancel
             </Button>
-          )}
-        </Box>
-        <DialogActions>
-          <Button variant="outlined">Cancel</Button>
-          <Button
-            type="submit"
-            variant="contained"
-            disabled={!title || !videoFile}
-          >
-            Upload
-          </Button>
-        </DialogActions>
-      </DialogContent>
-    </Dialog>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={!title || !videoFile || loading}
+            >
+              {loading ? <CircularProgress size={20} /> : "Upload"}
+            </Button>
+          </DialogActions>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 

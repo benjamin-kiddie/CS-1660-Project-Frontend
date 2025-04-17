@@ -60,16 +60,22 @@ const styles = {
     backgroundColor: "#E0E0E0",
     borderRadius: 3,
     padding: "10px",
+    position: "relative",
   },
-  descriptionContainer: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  expand: {
+  expandCollapse: {
     fontWeight: "bold",
     cursor: "pointer",
-    marginLeft: "10px",
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
+  expandInline: {
+    display: "inline",
+    marginLeft: "5px",
+  },
+  collapseBlock: {
+    display: "block",
+    marginTop: "10px",
   },
   likeDislikeContainer: {
     display: "flex",
