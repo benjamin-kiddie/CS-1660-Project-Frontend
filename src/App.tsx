@@ -36,17 +36,16 @@ function App() {
         <UserProvider>
           <Routes>
             <Route
-              path="/"
               element={
                 <ProtectedRoute>
                   <Layout />
                 </ProtectedRoute>
               }
             >
-              <Route path="home" element={<Home />} />
-              <Route path="search" element={<Search />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="watch/:videoId" element={<Watch />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/watch/:videoId" element={<Watch />} />
             </Route>
             <Route path="/login" element={<Login />} />
             <Route path="*" element={<Navigate to={"/home"} />} />

@@ -1,4 +1,7 @@
 const styles = {
+  dialogButton: {
+    borderRadius: "50px",
+  },
   uploadContainer: {
     mt: 3,
     p: 2,

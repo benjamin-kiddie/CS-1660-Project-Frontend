@@ -2,6 +2,7 @@ import {
   Search as SearchIcon,
   Logout as LogoutIcon,
   AccountCircle as ProfileIcon,
+  Home as HomeIcon,
   Menu as MenuIcon,
 } from "@mui/icons-material";
 import {
@@ -34,17 +35,15 @@ function Layout() {
   const navigate = useNavigate();
   const { user, setUser } = useUser();
   const [search, setSearch] = useState<string>("");
-  const [logoutMenuAnchorEl, setLogoutMenuAnchorEl] =
-    useState<HTMLElement | null>(null);
   const [sideMenuAnchorEl, setSideMenuAnchorEl] = useState<HTMLElement | null>(
     null
   );
+  const [logoutMenuAnchorEl, setLogoutMenuAnchorEl] =
+    useState<HTMLElement | null>(null);
   const sideMenuOpen = Boolean(sideMenuAnchorEl);
   const logoutMenuOpen = Boolean(logoutMenuAnchorEl);
   const [searchBarWidth, setTextFieldWidth] = useState<number>(0);
   const searchBarRef = useRef<HTMLInputElement>(null);
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const open = Boolean(anchorEl);
 
   useEffect(() => {
     if (searchBarRef.current) {
@@ -107,10 +106,19 @@ function Layout() {
   }
 
   /**
-   * Handle a navigation in profile page.
+   * Handle navigation to Home.
    */
-  function handleProfile() {
+  function handleNavigateHome() {
+    navigate("/home");
+    handleSideMenuClose();
+  }
+
+  /**
+   * Handle navigation to Profile.
+   */
+  function handleNavigateProfile() {
     navigate("/profile");
+    handleSideMenuClose();
   }
 
   /**
@@ -160,7 +168,6 @@ function Layout() {
               anchorEl={sideMenuAnchorEl}
               open={sideMenuOpen}
               onClose={handleSideMenuClose}
-              onClick={handleSideMenuClose}
               slotProps={{
                 paper: {
                   elevation: 3,
@@ -170,7 +177,19 @@ function Layout() {
               transformOrigin={{ horizontal: "right", vertical: "top" }}
               anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
             >
-              <MenuItem onClick={handleProfile}>
+              <MenuItem
+                onClick={handleNavigateHome}
+                selected={location.pathname === "/home"}
+              >
+                <ListItemIcon>
+                  <HomeIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText primary="Home" />
+              </MenuItem>
+              <MenuItem
+                selected={location.pathname === "/profile"}
+                onClick={handleNavigateProfile}
+              >
                 <ListItemIcon>
                   <ProfileIcon fontSize="small" />
                 </ListItemIcon>
@@ -236,12 +255,6 @@ function Layout() {
                 transformOrigin={{ horizontal: "right", vertical: "top" }}
                 anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
               >
-                <MenuItem onClick={handleProfile}>
-                  <ListItemIcon>
-                    <ProfileIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText primary="Profile" />
-                </MenuItem>
                 <MenuItem onClick={handleLogout}>
                   <ListItemIcon>
                     <LogoutIcon fontSize="small" />

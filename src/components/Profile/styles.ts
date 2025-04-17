@@ -1,43 +1,43 @@
 const styles = {
-    contentContainer: {
-        width: "100vw"
+  page: {
+    display: "flex",
+    flexDirection: "column",
+    width: {
+      xs: "100%",
+      sm: "97%",
+      md: "94%",
+      lg: "92",
+      xl: "90%",
     },
-    bannerContainer: {
-        padding: "1rem",
-        position: "fixed",
-        margin: "0",
-        display: "flex",
-        flexDirection: "row",
-        width: "100vw",
-        justifyContent: "left",
-        alignItems: "center",
-        backgroundColor: "#FFFFFF",
-    },
-    logoAndNameContainer: {
-        display: "flex",
-        alightItems: "flex-end"
-    },
-    avatar: {
-        padding: "1rem",
-        display: "flex",
-        alignItems: "center",
-        size: "200px",
-        height: "100%"
-    },
-    name: {
-        padding: "1rem",
-        display: "flex",
-        alignItems: "flex-end",
-        fontSize: "35px",
-        height: "100%"
-    },
-    uploadButton: {
-        padding: "1rem",
-        color: "#000000",
-        alignItems: "flex-end",
-        justifyContent: "right",
-        height: "100%"
-    }
-}
+    height: "100%",
+  },
+  banner: {
+    display: "flex",
+    flexDirection: "row",
+    width: "100%",
+    height: "20%",
+    justifyContent: "center",
+    alignItems: "center",
+    pb: 2,
+    mb: 2,
+    borderBottom: "1px solid lightgrey",
+  },
+  avatar: {
+    width: "150px",
+    height: "150px",
+    mr: 2,
+  },
+  uploadedVideos: {
+    mb: 2,
+    textAlign: { xs: "center", sm: "left" },
+  },
+  grid: {
+    width: "100%",
+    height: "100%",
+  },
+  refetchLayer: {
+    marginBottom: "30px",
+  },
+};
 
 export default styles;
