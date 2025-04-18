@@ -6,8 +6,7 @@ COPY package*.json .
 RUN npm install
 
 COPY . .
-ARG VITE_API_URL
-ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_API_URL=https://backend-service-866186459758.us-central1.run.app
 RUN npm run build
 
 FROM nginx:stable-alpine AS runtime
