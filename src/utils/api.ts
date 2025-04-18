@@ -1,6 +1,6 @@
 import { CommentDetails, VideoDetails, VideoOption } from "./types";
 
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 /**
  * Upload a video and thumbnail (optional) to the API.
