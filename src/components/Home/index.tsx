@@ -44,7 +44,7 @@ function Home() {
       const { videoOptions: newVideoOptions, hasMore } = await getVideoOptions(
         seedRef.current,
         videoPageRef.current,
-        5,
+        15,
         undefined,
         token
       );
@@ -99,7 +99,7 @@ function Home() {
           </Grid>
         ))}
         {loading &&
-          Array.from({ length: 5 }).map((_, index) => (
+          Array.from({ length: 15 }).map((_, index) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }} key={index}>
               <VideoOptionTileSkeleton />
             </Grid>
