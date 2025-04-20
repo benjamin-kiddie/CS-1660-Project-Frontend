@@ -2,8 +2,7 @@ const styles = {
   tile: {
     display: "flex",
     alignItems: "flex-start",
-    gap: "15px",
-    padding: "0 0 10px",
+    gap: "10px",
   },
   thumbnailLink: { textDecoration: "none" },
   thumbnailContainer: {
