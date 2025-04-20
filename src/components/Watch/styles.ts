@@ -22,12 +22,12 @@ const styles = {
     width: { xs: "100%", md: "25%" },
   },
   playerContainer: {
-    maxHeight: "600px",
     width: "100%",
     aspectRatio: "16/9",
     borderRadius: 3,
     overflow: "hidden",
     marginBottom: "10px",
+    backgroundColor: "#000",
   },
   titleUploaderContainer: {
     textAlign: "left",
