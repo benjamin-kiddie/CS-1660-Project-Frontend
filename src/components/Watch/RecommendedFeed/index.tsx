@@ -143,7 +143,7 @@ function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
 
   return (
     <Box sx={styles.recommendedContainer}>
-      <Stack spacing={2}>
+      <Stack spacing={1.5}>
         {videoList.map((video) => (
           <RecommendedTile video={video} key={video.id} />
         ))}

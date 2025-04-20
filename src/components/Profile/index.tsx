@@ -43,7 +43,7 @@ function Profile() {
     setLoading(true);
     const token = await user?.getIdToken();
     const { videoOptions: newVideoOptions, hasMore } =
-      await getUserVideoOptions(user.uid, videoPageRef.current, 1, token);
+      await getUserVideoOptions(user.uid, videoPageRef.current, 15, token);
     if (newVideoOptions.length > 0) {
       setVideoList((prevVideoList) => [...prevVideoList, ...newVideoOptions]);
       videoPageRef.current += 1;
@@ -168,7 +168,7 @@ function Profile() {
               </Grid>
             ))}
             {loading &&
-              Array.from({ length: 5 }).map((_, index) => (
+              Array.from({ length: 15 }).map((_, index) => (
                 <Grid
                   size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
                   key={index}
