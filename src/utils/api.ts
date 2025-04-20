@@ -8,7 +8,6 @@ const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8080";
  * @param {string} description Description of the video.
  * @param {File | null} videoFile The video file to upload.
  * @param {File | null} thumbnailFile The thumbnail file to upload (optional).
- * @param {string} uploader The uploader's UID.
  * @param {string} token JWT for authorization.
  * @returns {Promise<string | null>} The ID of the uploaded video or null if the upload failed.
  */
@@ -19,27 +18,81 @@ export async function uploadVideo(
   thumbnailFile: File | null,
   token?: string
 ): Promise<string | null> {
-  const formData = new FormData();
-  formData.append("title", title);
-  formData.append("description", description);
-  if (videoFile) formData.append("videoFile", videoFile);
-  if (thumbnailFile) formData.append("thumbnailFile", thumbnailFile);
+  if (!videoFile) {
+    console.error("No video file provided");
+    return null;
+  }
 
+  let videoId: string | null = null;
   try {
-    const response = await fetch(`${apiUrl}/video`, {
+    const metadataResponse = await fetch(`${apiUrl}/video`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
       },
-      body: formData,
+      body: JSON.stringify({
+        title,
+        description,
+        videoType: videoFile.type,
+        thumbnailType: thumbnailFile ? thumbnailFile.type : undefined,
+      }),
     });
-    const data = await response.json();
-    if (!response.ok) {
+
+    const data = await metadataResponse.json();
+    if (!metadataResponse.ok) {
       throw new Error(data.error);
     }
-    return data;
+    videoId = data.videoId;
+    const { videoUploadUrl, thumbnailUploadUrl } = data;
+
+    const videoUploadResponse = await fetch(videoUploadUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": videoFile.type,
+      },
+      body: videoFile,
+    });
+    if (!videoUploadResponse.ok) {
+      throw new Error("Failed to upload video file");
+    }
+
+    if (thumbnailFile) {
+      const thumbnailUploadResponse = await fetch(thumbnailUploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": thumbnailFile.type,
+        },
+        body: thumbnailFile,
+      });
+      if (!thumbnailUploadResponse.ok) {
+        throw new Error("Failed to upload thumbnail file");
+      }
+    } else {
+      const thumbnailGenerationResponse = await fetch(
+        `${apiUrl}/video/thumbnail`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ videoId }),
+        }
+      );
+      if (!thumbnailGenerationResponse.ok) {
+        throw new Error("Failed to generate thumbnail");
+      }
+    }
+
+    return videoId;
   } catch (error) {
     console.error("Error uploading video:", error);
+    console.log(videoId);
+    if (videoId) {
+      // video upload failed, delete the video metadata and files if they exist
+      await deleteVideo(videoId, token);
+    }
     return null;
   }
 }

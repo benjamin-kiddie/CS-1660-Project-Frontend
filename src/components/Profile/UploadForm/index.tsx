@@ -28,6 +28,14 @@ type UploadFormProps = {
   refetchVideos: () => void;
 };
 
+const allowedVideoTypes = ["video/mp4", "video/webm", "video/ogg"];
+const allowedThumbnailTypes = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+];
+
 function UploadForm({ refetchVideos }: UploadFormProps) {
   const { user } = useUser();
   const { showSnackbar } = useSnackbar();
@@ -36,6 +44,7 @@ function UploadForm({ refetchVideos }: UploadFormProps) {
   const [description, setDescription] = useState<string>("");
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [videoError, setVideoError] = useState<string | null>(null);
   const [thumbnailError, setThumbnailError] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
@@ -47,6 +56,16 @@ function UploadForm({ refetchVideos }: UploadFormProps) {
    */
   function handleVideoChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] || null;
+
+    // check file type
+    if (file && !allowedVideoTypes.includes(file.type)) {
+      setVideoError("Invalid file type. Allowed types: MP4, WebM, OGG");
+      setVideoFile(null);
+      setVideoPreview(null);
+      return;
+    }
+
+    setVideoError(null);
     setVideoFile(file);
     if (file) {
       const previewUrl = URL.createObjectURL(file);
@@ -62,6 +81,16 @@ function UploadForm({ refetchVideos }: UploadFormProps) {
    */
   function handleThumbnailChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] || null;
+
+    // check file type
+    if (file && !allowedThumbnailTypes.includes(file.type)) {
+      setThumbnailError(
+        "Invalid file type. Allowed types: JPEG, PNG, WebP, GIF"
+      );
+      setThumbnailFile(null);
+      setThumbnailPreview(null);
+      return;
+    }
 
     // check aspect ratio
     if (file) {
@@ -97,6 +126,7 @@ function UploadForm({ refetchVideos }: UploadFormProps) {
    * Handle clearing the video file.
    */
   function clearVideoFile() {
+    setVideoError(null);
     setVideoFile(null);
     if (videoPreview) {
       URL.revokeObjectURL(videoPreview);
@@ -150,6 +180,7 @@ function UploadForm({ refetchVideos }: UploadFormProps) {
     setTitle("");
     setDescription("");
     setVideoFile(null);
+    setVideoError(null);
     setThumbnailFile(null);
     setThumbnailError(null);
     if (videoPreview) {
@@ -214,6 +245,11 @@ function UploadForm({ refetchVideos }: UploadFormProps) {
               <VideocamIcon sx={styles.icon} />
               Video Upload
             </Typography>
+            {videoError && (
+              <Typography color="error" variant="body2">
+                {videoError}
+              </Typography>
+            )}
             {videoFile ? (
               <Stack
                 direction="row"
