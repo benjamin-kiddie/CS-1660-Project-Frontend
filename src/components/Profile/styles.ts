@@ -10,6 +10,7 @@ const styles = {
       xl: "90%",
     },
     height: "100%",
+    paddingBottom: "24px",
   },
   banner: {
     display: "flex",
@@ -34,9 +35,6 @@ const styles = {
   grid: {
     width: "100%",
     height: "100%",
-  },
-  refetchLayer: {
-    marginBottom: "30px",
   },
 };
 

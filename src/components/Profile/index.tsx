@@ -30,10 +30,12 @@ function Profile() {
   const [videoList, setVideoList] = useState<VideoOption[]>([]);
   const [hasMoreVideos, setHasMoreVideos] = useState<boolean>(true);
   const videoPageRef = useRef<number>(1);
+  const initialFetchDoneRef = useRef(false);
   const observerRef = useRef<HTMLDivElement | null>(null);
   const observerInstanceRef = useRef<IntersectionObserver | null>(null);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedVideoId, setSelectedVideoId] = useState<string | null>(null);
+  const pageSize = 15;
 
   /**
    * Fetch videos for the profile page.
@@ -43,7 +45,12 @@ function Profile() {
     setLoading(true);
     const token = await user?.getIdToken();
     const { videoOptions: newVideoOptions, hasMore } =
-      await getUserVideoOptions(user.uid, videoPageRef.current, 15, token);
+      await getUserVideoOptions(
+        user.uid,
+        videoPageRef.current,
+        pageSize,
+        token
+      );
     if (newVideoOptions.length > 0) {
       setVideoList((prevVideoList) => [...prevVideoList, ...newVideoOptions]);
       videoPageRef.current += 1;
@@ -65,31 +72,68 @@ function Profile() {
   }
 
   useEffect(() => {
-    if (hasMoreVideos) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting && !loading) {
-            fetchVideoOptions();
-          }
-        },
-        { threshold: 1.0 }
-      );
+    let isCancelled = false;
 
-      const currentObserverRef = observerRef.current;
-      if (currentObserverRef) {
-        observer.observe(currentObserverRef);
+    const resetAndFetch = async () => {
+      if (!user) return;
+
+      setVideoList([]);
+      setHasMoreVideos(true);
+      videoPageRef.current = 1;
+      initialFetchDoneRef.current = false;
+      setLoading(true);
+
+      const token = await user.getIdToken();
+      const { videoOptions: newVideoOptions, hasMore } =
+        await getUserVideoOptions(
+          user.uid,
+          videoPageRef.current,
+          pageSize,
+          token
+        );
+
+      if (!isCancelled) {
+        setVideoList(newVideoOptions);
+        videoPageRef.current += 1;
+        setHasMoreVideos(hasMore);
+        initialFetchDoneRef.current = true;
+        setLoading(false);
       }
+    };
 
-      observerInstanceRef.current = observer;
+    resetAndFetch();
+    return () => {
+      isCancelled = true;
+    };
+  }, [user]);
 
-      return () => {
-        if (currentObserverRef) {
-          observer.unobserve(currentObserverRef);
+  useEffect(() => {
+    const shouldObserve =
+      initialFetchDoneRef.current && hasMoreVideos && !loading;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading) {
+          fetchVideoOptions();
         }
-        observer.disconnect();
-      };
+      },
+      { threshold: 0.6 }
+    );
+
+    const currentObserverRef = observerRef.current;
+
+    if (shouldObserve && currentObserverRef) {
+      observer.observe(currentObserverRef);
+      observerInstanceRef.current = observer;
     }
-  }, [fetchVideoOptions, hasMoreVideos, loading, user]);
+
+    return () => {
+      if (observerInstanceRef.current) {
+        observerInstanceRef.current.disconnect();
+        observerInstanceRef.current = null;
+      }
+    };
+  }, [hasMoreVideos, loading, fetchVideoOptions]);
 
   /**
    * Handle deleting a video.
@@ -155,20 +199,24 @@ function Profile() {
             Uploaded Videos
           </Typography>
           <Grid container spacing={3} sx={styles.grid}>
-            {videoList.map((video) => (
-              <Grid
-                size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
-                key={video.id}
-              >
-                <VideoOptionTile
-                  video={video}
-                  showMenu={true}
-                  openMenu={handleMenuOpen}
-                />
-              </Grid>
-            ))}
+            {videoList.map((video, index) => {
+              const isLast = index === videoList.length - 1;
+              return (
+                <Grid
+                  size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
+                  key={video.id}
+                  ref={isLast && hasMoreVideos ? observerRef : null}
+                >
+                  <VideoOptionTile
+                    video={video}
+                    showMenu={true}
+                    openMenu={handleMenuOpen}
+                  />
+                </Grid>
+              );
+            })}
             {loading &&
-              Array.from({ length: 15 }).map((_, index) => (
+              Array.from({ length: pageSize }).map((_, index) => (
                 <Grid
                   size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
                   key={index}
@@ -190,9 +238,6 @@ function Profile() {
             </MenuItem>
           </Menu>
         </Box>
-        {!loading && hasMoreVideos && (
-          <div ref={observerRef} style={styles.refetchLayer} />
-        )}
       </Box>
     )
   );

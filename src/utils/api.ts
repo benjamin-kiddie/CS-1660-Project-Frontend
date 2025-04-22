@@ -181,12 +181,15 @@ export async function getUserVideoOptions(
     if (page !== undefined) queryParams.append("page", page.toString());
     if (limit !== undefined) queryParams.append("limit", limit.toString());
 
-    const response = await fetch(`${apiUrl}/video/user/${userId}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      `${apiUrl}/video/user/${userId}?${queryParams.toString()}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     const data = await response.json();
     if (!response.ok) {
       throw new Error(data.error);
