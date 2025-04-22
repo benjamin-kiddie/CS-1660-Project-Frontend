@@ -21,7 +21,7 @@ const styles = {
     height: "100%",
     minWidth: "308px",
     width: { xs: "100%", md: "25%" },
-    marginBottom: { xs: "0px", md: "20px" },
+    marginBottom: { xs: "0", md: "20px" },
     overflow: "visible",
   },
   refetchLayer: {
@@ -37,25 +37,28 @@ function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
   const theme = useTheme();
   const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
   const [loading, setLoading] = useState<boolean>(false);
-  const [initialFetchDone, setInitialFetchDone] = useState<boolean>(false);
   const [videoList, setVideoList] = useState<VideoOption[]>([]);
   const [hasMoreVideos, setHasMoreVideos] = useState<boolean>(true);
   const videoPageRef = useRef<number>(1);
+  const initialFetchDoneRef = useRef(false);
   const seedRef = useRef<string>(Math.random().toString(36).substring(2));
   const observerRef = useRef<HTMLDivElement | null>(null);
   const observerInstanceRef = useRef<IntersectionObserver | null>(null);
+  const pageSize = 10;
 
   const fetchVideoOptions = useCallback(async () => {
     if (!user || loading) return;
     setLoading(true);
+
     const token = await user.getIdToken();
     const { videoOptions: newVideoOptions, hasMore } = await getVideoOptions(
       seedRef.current,
       videoPageRef.current,
-      5,
+      pageSize,
       currentVideoId,
       token
     );
+
     if (newVideoOptions.length > 0) {
       setVideoList((prevVideoList) => [...prevVideoList, ...newVideoOptions]);
       videoPageRef.current += 1;
@@ -67,80 +70,69 @@ function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
   }, [user, loading, currentVideoId]);
 
   useEffect(() => {
-    setVideoList([]);
-    setHasMoreVideos(true);
-    setInitialFetchDone(false);
-    videoPageRef.current = 1;
-    seedRef.current = Math.random().toString(36).substring(2);
-  }, [currentVideoId]);
+    let isCancelled = false;
 
-  useEffect(() => {
-    const performInitialFetch = async () => {
+    const resetAndFetch = async () => {
       if (!user) return;
+
+      setVideoList([]);
+      setHasMoreVideos(true);
+      videoPageRef.current = 1;
+      seedRef.current = Math.random().toString(36).substring(2);
+      initialFetchDoneRef.current = false;
       setLoading(true);
+
       const token = await user.getIdToken();
       const { videoOptions: newVideoOptions, hasMore } = await getVideoOptions(
         seedRef.current,
         videoPageRef.current,
-        5,
+        pageSize,
         currentVideoId,
         token
       );
-      if (newVideoOptions.length > 0) {
+
+      if (!isCancelled) {
         setVideoList(newVideoOptions);
         videoPageRef.current += 1;
+        setHasMoreVideos(hasMore);
+        initialFetchDoneRef.current = true;
+        setLoading(false);
       }
-      setHasMoreVideos(hasMore);
-      setLoading(false);
-      setInitialFetchDone(true);
     };
 
-    performInitialFetch();
+    resetAndFetch();
+    return () => {
+      isCancelled = true;
+    };
   }, [user, currentVideoId]);
 
   useEffect(() => {
-    if (initialFetchDone && !isBelowMd && hasMoreVideos) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting && !loading) {
-            fetchVideoOptions();
-          }
-        },
-        { threshold: 1.0 }
-      );
+    const shouldObserve =
+      initialFetchDoneRef.current && !isBelowMd && hasMoreVideos && !loading;
 
-      const currentObserverRef = observerRef.current;
-      if (currentObserverRef) {
-        observer.observe(currentObserverRef);
-      }
-
-      observerInstanceRef.current = observer;
-
-      return () => {
-        if (currentObserverRef) {
-          observer.unobserve(currentObserverRef);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading) {
+          fetchVideoOptions();
         }
-        observer.disconnect();
-      };
-    } else if (isBelowMd && observerInstanceRef.current) {
-      observerInstanceRef.current.disconnect();
-      observerInstanceRef.current = null;
-    }
-  }, [
-    currentVideoId,
-    hasMoreVideos,
-    loading,
-    user,
-    isBelowMd,
-    fetchVideoOptions,
-    initialFetchDone,
-  ]);
+      },
+      { threshold: 1.0 }
+    );
 
-  useEffect(() => {
-    if (!hasMoreVideos && observerInstanceRef.current) {
-      observerInstanceRef.current.disconnect();
+    const currentObserverRef = observerRef.current;
+
+    if (shouldObserve && currentObserverRef) {
+      observer.observe(currentObserverRef);
+      observerInstanceRef.current = observer;
     }
-  }, [hasMoreVideos]);
+
+    return () => {
+      if (observerInstanceRef.current) {
+        observerInstanceRef.current.disconnect();
+        observerInstanceRef.current = null;
+      }
+    };
+  }, [hasMoreVideos, isBelowMd, loading, fetchVideoOptions]);
 
   return (
     <Box sx={styles.recommendedContainer}>

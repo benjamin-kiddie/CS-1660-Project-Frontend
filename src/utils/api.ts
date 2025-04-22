@@ -88,7 +88,6 @@ export async function uploadVideo(
     return videoId;
   } catch (error) {
     console.error("Error uploading video:", error);
-    console.log(videoId);
     if (videoId) {
       // video upload failed, delete the video metadata and files if they exist
       await deleteVideo(videoId, token);
