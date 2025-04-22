@@ -4,8 +4,8 @@ const styles = {
     display: "flex",
     flexDirection: { xs: "column", md: "row" },
     gap: "20px",
+    alignItems: "flex-start",
     justifyContent: "center",
-    alignItems: "stretch",
   },
   videoContentContainer: {
     width: { xs: "100%", md: "75%" },

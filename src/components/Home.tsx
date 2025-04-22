@@ -1,50 +1,40 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Stack,
-  useMediaQuery,
-  useTheme,
-} from "@mui/material";
+import { Grid2 as Grid } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import RecommendedTile from "./RecommendedTile";
-import { useUser } from "../../../hooks/useUser";
-import { getVideoOptions } from "../../../utils/api";
-import { VideoOption } from "../../../utils/types";
-
-type RecommendedFeedProps = {
-  currentVideoId: string;
-};
+import VideoOptionTile from "./VideoOptionTile";
+import VideoOptionTileSkeleton from "./VideoOptionTileSkeleton";
+import { useUser } from "../hooks/useUser";
+import { getVideoOptions } from "../utils/api";
+import { VideoOption } from "../utils/types";
 
 const styles = {
-  recommendedContainer: {
+  grid: {
+    width: {
+      xs: "100%",
+      sm: "97%",
+      md: "94%",
+      lg: "92",
+      xl: "90%",
+    },
     height: "100%",
-    minWidth: "308px",
-    width: { xs: "100%", md: "25%" },
-    marginBottom: { xs: "0", md: "20px" },
-    overflow: "visible",
-  },
-  refetchLayer: {
-    marginBottom: "30px",
+    paddingBottom: "24px",
   },
 };
 
 /**
- * Recommended feed used in Watch component.
+ * Front page component.
+ * Shows list of videos.
  */
-function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
+function Home() {
   const { user } = useUser();
-  const theme = useTheme();
-  const isBelowMd = useMediaQuery(theme.breakpoints.down("md"));
   const [loading, setLoading] = useState<boolean>(false);
   const [videoList, setVideoList] = useState<VideoOption[]>([]);
   const [hasMoreVideos, setHasMoreVideos] = useState<boolean>(true);
   const videoPageRef = useRef<number>(1);
-  const initialFetchDoneRef = useRef(false);
   const seedRef = useRef<string>(Math.random().toString(36).substring(2));
+  const initialFetchDoneRef = useRef(false);
   const observerRef = useRef<HTMLDivElement | null>(null);
   const observerInstanceRef = useRef<IntersectionObserver | null>(null);
-  const pageSize = 10;
+  const pageSize = 15;
 
   const fetchVideoOptions = useCallback(async () => {
     if (!user || loading) return;
@@ -55,7 +45,7 @@ function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
       seedRef.current,
       videoPageRef.current,
       pageSize,
-      currentVideoId,
+      undefined,
       token
     );
 
@@ -67,7 +57,7 @@ function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
       setHasMoreVideos(false);
     }
     setLoading(false);
-  }, [user, loading, currentVideoId]);
+  }, [user, loading]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -87,7 +77,7 @@ function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
         seedRef.current,
         videoPageRef.current,
         pageSize,
-        currentVideoId,
+        undefined,
         token
       );
 
@@ -104,11 +94,11 @@ function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
     return () => {
       isCancelled = true;
     };
-  }, [user, currentVideoId]);
+  }, [user]);
 
   useEffect(() => {
     const shouldObserve =
-      initialFetchDoneRef.current && !isBelowMd && hasMoreVideos && !loading;
+      initialFetchDoneRef.current && hasMoreVideos && !loading;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -116,7 +106,7 @@ function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
           fetchVideoOptions();
         }
       },
-      { threshold: 1.0 }
+      { threshold: 0.6 }
     );
 
     const currentObserverRef = observerRef.current;
@@ -132,35 +122,32 @@ function RecommendedFeed({ currentVideoId }: RecommendedFeedProps) {
         observerInstanceRef.current = null;
       }
     };
-  }, [hasMoreVideos, isBelowMd, loading, fetchVideoOptions]);
+  }, [hasMoreVideos, loading, fetchVideoOptions]);
 
   return (
-    <Box sx={styles.recommendedContainer}>
-      <Stack spacing={1.5}>
-        {videoList.map((video) => (
-          <RecommendedTile video={video} key={video.id} />
-        ))}
-      </Stack>
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-          <CircularProgress />
-        </Box>
-      )}
-      {!loading && hasMoreVideos && (
-        <>
-          {!isBelowMd ? (
-            <div ref={observerRef} style={styles.refetchLayer} />
-          ) : (
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-              <Button variant="outlined" fullWidth onClick={fetchVideoOptions}>
-                Load More
-              </Button>
-            </Box>
-          )}
-        </>
-      )}
-    </Box>
+    <>
+      <Grid container spacing={3} sx={styles.grid}>
+        {videoList.map((video, index) => {
+          const isLast = index === videoList.length - 1;
+          return (
+            <Grid
+              size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
+              key={video.id}
+              ref={isLast && hasMoreVideos ? observerRef : null}
+            >
+              <VideoOptionTile video={video} />
+            </Grid>
+          );
+        })}
+        {loading &&
+          Array.from({ length: pageSize }).map((_, index) => (
+            <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }} key={index}>
+              <VideoOptionTileSkeleton />
+            </Grid>
+          ))}
+      </Grid>
+    </>
   );
 }
 
-export default RecommendedFeed;
+export default Home;

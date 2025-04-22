@@ -1,5 +1,5 @@
 import { Box, Grid2 as Grid, Typography } from "@mui/material";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useUser } from "../../hooks/useUser";
 import { searchVideoOptions } from "../../utils/api";
@@ -17,6 +17,7 @@ const styles = {
       xl: "90%%",
     },
     height: "100%",
+    paddingBottom: "24px",
   },
   noResults: {
     display: "flex",
@@ -39,82 +40,112 @@ function Search() {
   const [videoList, setVideoList] = useState<VideoOption[]>([]);
   const [hasMoreVideos, setHasMoreVideos] = useState<boolean>(true);
   const videoPageRef = useRef<number>(1);
+  const initialFetchDoneRef = useRef(false);
   const observerRef = useRef<HTMLDivElement | null>(null);
   const observerInstanceRef = useRef<IntersectionObserver | null>(null);
   const [searchParams] = useSearchParams();
   const query = searchParams.get("query") || "";
+  const pageSize = 15;
+
+  const fetchVideoOptions = useCallback(async () => {
+    if (!user || loading) return;
+    setLoading(true);
+    const token = await user.getIdToken();
+
+    const { videoOptions: newVideoOptions, hasMore } = await searchVideoOptions(
+      query,
+      videoPageRef.current,
+      pageSize,
+      token
+    );
+
+    if (newVideoOptions.length > 0) {
+      setVideoList((prevVideoList) => [...prevVideoList, ...newVideoOptions]);
+      videoPageRef.current += 1;
+    }
+    if (!hasMore) {
+      setHasMoreVideos(false);
+    }
+    setLoading(false);
+  }, [user, loading, query]);
 
   useEffect(() => {
-    const fetchVideoOptions = async () => {
-      if (!user || loading) return;
+    let isCancelled = false;
+
+    const resetAndFetch = async () => {
+      if (!user) return;
+
+      setVideoList([]);
+      setHasMoreVideos(true);
+      videoPageRef.current = 1;
+      initialFetchDoneRef.current = false;
       setLoading(true);
+
       const token = await user.getIdToken();
-
       const { videoOptions: newVideoOptions, hasMore } =
-        await searchVideoOptions(query, videoPageRef.current, 15, token);
+        await searchVideoOptions(query, videoPageRef.current, pageSize, token);
 
-      if (newVideoOptions.length > 0) {
-        setVideoList((prevVideoList) => [...prevVideoList, ...newVideoOptions]);
+      if (!isCancelled) {
+        setVideoList(newVideoOptions);
         videoPageRef.current += 1;
+        setHasMoreVideos(hasMore);
+        initialFetchDoneRef.current = true;
+        setLoading(false);
       }
-      if (!hasMore) {
-        setHasMoreVideos(false);
-      }
-      setLoading(false);
     };
 
-    if (hasMoreVideos) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting && !loading) {
-            fetchVideoOptions();
-          }
-        },
-        { threshold: 1.0 }
-      );
+    resetAndFetch();
+    return () => {
+      isCancelled = true;
+    };
+  }, [query, user]);
 
-      const currentObserverRef = observerRef.current;
-      if (currentObserverRef) {
-        observer.observe(currentObserverRef);
-      }
+  useEffect(() => {
+    const shouldObserve =
+      initialFetchDoneRef.current && hasMoreVideos && !loading;
 
-      observerInstanceRef.current = observer;
-
-      return () => {
-        if (currentObserverRef) {
-          observer.unobserve(currentObserverRef);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading) {
+          fetchVideoOptions();
         }
-        observer.disconnect();
-      };
-    }
-  }, [hasMoreVideos, loading, user, query]);
+      },
+      { threshold: 0.6 }
+    );
 
-  useEffect(() => {
-    setVideoList([]);
-    videoPageRef.current = 1;
-    setHasMoreVideos(true);
-  }, [query]);
+    const currentObserverRef = observerRef.current;
 
-  useEffect(() => {
-    if (!hasMoreVideos && observerInstanceRef.current) {
-      observerInstanceRef.current.disconnect();
+    if (shouldObserve && currentObserverRef) {
+      observer.observe(currentObserverRef);
+      observerInstanceRef.current = observer;
     }
-  }, [hasMoreVideos]);
+
+    return () => {
+      if (observerInstanceRef.current) {
+        observerInstanceRef.current.disconnect();
+        observerInstanceRef.current = null;
+      }
+    };
+  }, [hasMoreVideos, loading, fetchVideoOptions]);
 
   return (
     <>
       {(videoList.length > 0 || loading) && (
         <Grid container spacing={3} sx={styles.grid}>
-          {videoList.map((video) => (
-            <Grid
-              size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
-              key={video.id}
-            >
-              <VideoOptionTile video={video} />
-            </Grid>
-          ))}
+          {videoList.map((video, index) => {
+            const isLast = index === videoList.length - 1;
+            return (
+              <Grid
+                size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }}
+                key={video.id}
+                ref={isLast && hasMoreVideos ? observerRef : null}
+              >
+                <VideoOptionTile video={video} />
+              </Grid>
+            );
+          })}
           {loading &&
-            Array.from({ length: 15 }).map((_, index) => (
+            Array.from({ length: pageSize }).map((_, index) => (
               <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }} key={index}>
                 <VideoOptionTileSkeleton />
               </Grid>
@@ -127,9 +158,6 @@ function Search() {
             No results found.
           </Typography>
         </Box>
-      )}
-      {!loading && hasMoreVideos && (
-        <div ref={observerRef} style={styles.refetchLayer} />
       )}
     </>
   );
