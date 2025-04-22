@@ -35,19 +35,22 @@ function Home() {
   const seedRef = useRef<string>(Math.random().toString(36).substring(2));
   const observerRef = useRef<HTMLDivElement | null>(null);
   const observerInstanceRef = useRef<IntersectionObserver | null>(null);
+  const pageSize = 15;
 
   useEffect(() => {
     const fetchVideoOptions = async () => {
       if (!user || loading) return;
       setLoading(true);
+
       const token = await user.getIdToken();
       const { videoOptions: newVideoOptions, hasMore } = await getVideoOptions(
         seedRef.current,
         videoPageRef.current,
-        15,
+        pageSize,
         undefined,
         token
       );
+
       if (newVideoOptions.length > 0) {
         setVideoList((prevVideoList) => [...prevVideoList, ...newVideoOptions]);
         videoPageRef.current += 1;
@@ -57,6 +60,8 @@ function Home() {
       }
       setLoading(false);
     };
+
+    const currentObserverRef = observerRef.current;
 
     if (hasMoreVideos) {
       const observer = new IntersectionObserver(
@@ -68,7 +73,6 @@ function Home() {
         { threshold: 1.0 }
       );
 
-      const currentObserverRef = observerRef.current;
       if (currentObserverRef) {
         observer.observe(currentObserverRef);
       }
@@ -81,14 +85,10 @@ function Home() {
         }
         observer.disconnect();
       };
-    }
-  }, [hasMoreVideos, loading, user]);
-
-  useEffect(() => {
-    if (!hasMoreVideos && observerInstanceRef.current) {
+    } else if (observerInstanceRef.current) {
       observerInstanceRef.current.disconnect();
     }
-  }, [hasMoreVideos]);
+  }, [hasMoreVideos, loading, user]);
 
   return (
     <>
@@ -99,7 +99,7 @@ function Home() {
           </Grid>
         ))}
         {loading &&
-          Array.from({ length: 15 }).map((_, index) => (
+          Array.from({ length: pageSize }).map((_, index) => (
             <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3, xl: 2.4 }} key={index}>
               <VideoOptionTileSkeleton />
             </Grid>

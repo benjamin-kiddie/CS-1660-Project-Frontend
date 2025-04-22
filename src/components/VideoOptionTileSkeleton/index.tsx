@@ -1,4 +1,4 @@
-import { Box, Stack, Skeleton } from "@mui/material";
+import { Box, Stack, Skeleton, Typography } from "@mui/material";
 import styles from "./styles";
 
 /**
@@ -15,12 +15,18 @@ function VideoOptionTileSkeleton() {
           sx={styles.thumbnailSkeleton}
         />
       </Box>
-      <Stack direction="row" alignItems="top" spacing={2}>
+      <Stack direction="row" alignItems="top" spacing={1}>
         <Skeleton variant="circular" width={40} height={40} />
         <Box sx={styles.textContainer}>
-          <Skeleton variant="text" width="80%" height={24} />
-          <Skeleton variant="text" width="60%" height={20} />
-          <Skeleton variant="text" width="50%" height={20} />
+          <Typography variant="body1" fontWeight={500}>
+            <Skeleton width="80%" />
+          </Typography>
+          <Typography variant="body2">
+            <Skeleton width="60%" />
+          </Typography>
+          <Typography variant="body2">
+            <Skeleton width="50%" />
+          </Typography>
         </Box>
       </Stack>
     </Box>

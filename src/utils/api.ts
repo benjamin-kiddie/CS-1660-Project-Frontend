@@ -129,6 +129,7 @@ export async function deleteVideo(
  * @param {string} seed Seed for randomization.
  * @param {number} page Page number for pagination.
  * @param {number} limit Number of video options to fetch.
+ * @param {string} excludeId ID of the video to exclude from the results.
  * @param {string} token JWT for authorization.
  * @returns {Promise<VideoOption[], boolean>} Array of video options and whether or not more can be fetched.
  */
