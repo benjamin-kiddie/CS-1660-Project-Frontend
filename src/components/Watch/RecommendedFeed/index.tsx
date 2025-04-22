@@ -21,6 +21,7 @@ const styles = {
     height: "100%",
     minWidth: "308px",
     width: { xs: "100%", md: "25%" },
+    marginBottom: { xs: "0px", md: "20px" },
     overflow: "visible",
   },
   refetchLayer: {
