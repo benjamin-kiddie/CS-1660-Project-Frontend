@@ -50,9 +50,10 @@ function Watch() {
   }, [videoId, user]);
 
   useEffect(() => {
+    setIsPlaying(false);
+    setDescriptionIsExpanded(false);
     fetchVideoDetails();
   }, [fetchVideoDetails, user, videoId]);
-
   /**
    * Retry fetching video details if the old fetch failed.
    */
